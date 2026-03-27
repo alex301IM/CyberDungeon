@@ -16,12 +16,12 @@
   }
 
   function renderList(chats){
-    const $list = $("#301interactivebot-chat-list");
+    const $list = $("#_301interactivebot-chat-list");
     $list.empty();
     chats.forEach(c=>{
       const county = c.build_county || c.build_city || "No County";
       const title = `Chat #${c.id} — ${county} — ${c.lead_first || ""} ${c.lead_last || ""}`.trim();
-      const $i = $(`<div class="301interactivebot-live-item"></div>`);
+      const $i = $(`<div class="_301interactivebot-live-item"></div>`);
       $i.text(title);
       $i.toggleClass("active", c.id === selectedChatId);
       $i.on("click", ()=>selectChat(c.id));
@@ -30,9 +30,9 @@
   }
 
   function renderMessages(msgs){
-    const $box = $("#301interactivebot-chat-messages");
+    const $box = $("#_301interactivebot-chat-messages");
     msgs.forEach(m=>{
-      const $b = $(`<div class="301interactivebot-live-bubble ${m.sender}"></div>`);
+      const $b = $(`<div class="_301interactivebot-live-bubble ${m.sender}"></div>`);
       $b.text(m.message);
       $box.append($b);
       $box.scrollTop($box[0].scrollHeight);
@@ -50,7 +50,7 @@
   }
 
   function renderSummary(summary){
-    const $summary = $("#301interactivebot-chat-summary");
+    const $summary = $("#_301interactivebot-chat-summary");
     if(!summary){
       $summary.html("");
       return;
@@ -65,7 +65,7 @@
   }
 
   function renderPages(pages){
-    const $pages = $("#301interactivebot-chat-pages");
+    const $pages = $("#_301interactivebot-chat-pages");
     if(!pages || !pages.length){
       $pages.html("");
       return;
@@ -80,20 +80,20 @@
   }
 
   function setInputEnabled(enabled){
-    $("#301interactivebot-admin-input").prop("disabled", !enabled);
-    $("#301interactivebot-admin-send").prop("disabled", !enabled);
+    $("#_301interactivebot-admin-input").prop("disabled", !enabled);
+    $("#_301interactivebot-admin-send").prop("disabled", !enabled);
   }
 
   function setTakeoverButtons(takeover){
-    $("#301interactivebot-takeover").prop("disabled", takeover);
-    $("#301interactivebot-release").prop("disabled", !takeover);
+    $("#_301interactivebot-takeover").prop("disabled", takeover);
+    $("#_301interactivebot-release").prop("disabled", !takeover);
   }
 
   function selectChat(chatId){
     selectedChatId = chatId;
     sinceId = 0;
-    $("#301interactivebot-chat-title").text("Chat #" + chatId);
-    $("#301interactivebot-chat-messages").empty();
+    $("#_301interactivebot-chat-title").text("Chat #" + chatId);
+    $("#_301interactivebot-chat-messages").empty();
     setInputEnabled(false);
     setTakeoverButtons(false);
     fetchMeta();
@@ -120,7 +120,7 @@
       headers: {"X-WP-Nonce": _301InteractiveBotAdmin.nonce}
     }).then(r=>r.json()).then(resp=>{
       chatMeta = resp && resp.chat ? resp.chat : null;
-      const $meta = $("#301interactivebot-chat-meta");
+      const $meta = $("#_301interactivebot-chat-meta");
       if(chatMeta){
         const parts = [];
         if(chatMeta.session_key) parts.push("Session: " + chatMeta.session_key);
@@ -130,8 +130,8 @@
         $meta.text(parts.join(" | "));
         renderSummary(chatMeta.summary || "");
         renderPages(chatMeta.pages || []);
-        $("#301interactivebot-block").prop("disabled", false);
-        $("#301interactivebot-endchat").prop("disabled", false);
+        $("#_301interactivebot-block").prop("disabled", false);
+        $("#_301interactivebot-endchat").prop("disabled", false);
       } else {
         $meta.text("");
         renderSummary("");
@@ -147,9 +147,9 @@
   }
 
   function bindExportButton(){
-    const $btn = $("#301interactivebot-export-vector");
+    const $btn = $("#_301interactivebot-export-vector");
     if(!$btn.length) return;
-    const $status = $("#301interactivebot-export-status");
+    const $status = $("#_301interactivebot-export-status");
     $btn.on("click", ()=>{
       $status.text("Exporting content to Vector Store…");
       $btn.prop("disabled", true);
@@ -201,20 +201,20 @@
       selectChat(initialId);
     }
 
-    $("#301interactivebot-takeover").on("click", ()=>{
+    $("#_301interactivebot-takeover").on("click", ()=>{
       if(!selectedChatId) return;
       api("/admin/takeover","POST",{chat_id:selectedChatId}).then(()=>pollOnce());
     });
-    $("#301interactivebot-release").on("click", ()=>{
+    $("#_301interactivebot-release").on("click", ()=>{
       if(!selectedChatId) return;
       api("/admin/release","POST",{chat_id:selectedChatId}).then(()=>pollOnce());
     });
-    $("#301interactivebot-endchat").on("click", ()=>{
+    $("#_301interactivebot-endchat").on("click", ()=>{
       if(!selectedChatId) return;
       api("/admin/end","POST",{chat_id:selectedChatId}).then(()=>pollOnce());
     });
 
-    $("#301interactivebot-resend-transcript").on("click", ()=>{
+    $("#_301interactivebot-resend-transcript").on("click", ()=>{
       if(!selectedChatId) return;
       api("/admin/resend-transcript","POST",{chat_id:selectedChatId}).then((resp)=>{
         if(resp && !resp.error){
@@ -227,7 +227,7 @@
       });
     });
 
-    $("#301interactivebot-block").on("click", ()=>{
+    $("#_301interactivebot-block").on("click", ()=>{
       if(!selectedChatId) return;
       const blockType = prompt("Block type: session, ip, email, or phone", "session");
       if(!blockType) return;
@@ -246,14 +246,14 @@
       });
     });
 
-    $("#301interactivebot-admin-send").on("click", ()=>{
-      const msg = ($("#301interactivebot-admin-input").val()||"").toString().trim();
+    $("#_301interactivebot-admin-send").on("click", ()=>{
+      const msg = ($("#_301interactivebot-admin-input").val()||"").toString().trim();
       if(!msg || !selectedChatId) return;
-      $("#301interactivebot-admin-input").val("");
+      $("#_301interactivebot-admin-input").val("");
       api("/admin/send","POST",{chat_id:selectedChatId, message: msg}).then(()=>pollOnce());
     });
-    $("#301interactivebot-admin-input").on("keydown", (e)=>{
-      if(e.key==="Enter"){ e.preventDefault(); $("#301interactivebot-admin-send").click(); }
+    $("#_301interactivebot-admin-input").on("keydown", (e)=>{
+      if(e.key==="Enter"){ e.preventDefault(); $("#_301interactivebot-admin-send").click(); }
     });
   });
 
@@ -261,88 +261,88 @@
 
 jQuery(function($){
   // Color pickers
-  $('.301interactivebot-color').wpColorPicker();
+  $('._301interactivebot-color').wpColorPicker();
 
   // Media uploader for logo
   let frame = null;
-  $('#301interactivebot_logo_pick').on('click', function(){
+  $('#_301interactivebot_logo_pick').on('click', function(){
     if(frame){ frame.open(); return; }
     frame = wp.media({ title: 'Select Logo', button: { text: 'Use this logo' }, multiple: false });
     frame.on('select', function(){
       const att = frame.state().get('selection').first().toJSON();
-      $('#301interactivebot_logo_id').val(att.id);
+      $('#_301interactivebot_logo_id').val(att.id);
       const url = att.sizes && att.sizes.thumbnail ? att.sizes.thumbnail.url : att.url;
-      $('#301interactivebot_logo_preview').html('<img src="'+url+'" style="max-height:40px;width:auto" />');
+      $('#_301interactivebot_logo_preview').html('<img src="'+url+'" style="max-height:40px;width:auto" />');
     });
     frame.open();
   });
-  $('#301interactivebot_logo_clear').on('click', function(){
-    $('#301interactivebot_logo_id').val('0');
-    $('#301interactivebot_logo_preview').empty();
+  $('#_301interactivebot_logo_clear').on('click', function(){
+    $('#_301interactivebot_logo_id').val('0');
+    $('#_301interactivebot_logo_preview').empty();
   });
 
   function serializeFaqs(){
     const items = [];
-    $("#301interactivebot-faq-list .301interactivebot-faq-row").each(function(){
-      const q = ($(this).find(".301interactivebot-faq-q").val() || "").toString().trim();
-      const a = ($(this).find(".301interactivebot-faq-a").val() || "").toString().trim();
+    $("#_301interactivebot-faq-list ._301interactivebot-faq-row").each(function(){
+      const q = ($(this).find("._301interactivebot-faq-q").val() || "").toString().trim();
+      const a = ($(this).find("._301interactivebot-faq-a").val() || "").toString().trim();
       if(q && a){
         items.push({ q, a });
       }
     });
-    $("#301interactivebot_faq_json").val(JSON.stringify(items));
+    $("#_301interactivebot_faq_json").val(JSON.stringify(items));
   }
 
   function bindFaqRow($row){
-    $row.find(".301interactivebot-faq-q, .301interactivebot-faq-a").on("input", serializeFaqs);
-    $row.find(".301interactivebot-faq-remove").on("click", function(){
+    $row.find("._301interactivebot-faq-q, ._301interactivebot-faq-a").on("input", serializeFaqs);
+    $row.find("._301interactivebot-faq-remove").on("click", function(){
       $row.remove();
       serializeFaqs();
     });
   }
 
-  $("#301interactivebot-faq-list .301interactivebot-faq-row").each(function(){
+  $("#_301interactivebot-faq-list ._301interactivebot-faq-row").each(function(){
     bindFaqRow($(this));
   });
 
-  $("#301interactivebot-faq-add").on("click", function(){
+  $("#_301interactivebot-faq-add").on("click", function(){
     const $row = $(
-      '<div class="301interactivebot-faq-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">' +
+      '<div class="_301interactivebot-faq-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">' +
         '<div style="margin-bottom:8px;">' +
           '<label style="display:block;font-weight:600;margin-bottom:4px;">Question</label>' +
-          '<input type="text" class="301interactivebot-faq-q" style="width:100%;" />' +
+          '<input type="text" class="_301interactivebot-faq-q" style="width:100%;" />' +
         '</div>' +
         '<div style="margin-bottom:8px;">' +
           '<label style="display:block;font-weight:600;margin-bottom:4px;">Answer</label>' +
-          '<textarea class="301interactivebot-faq-a" rows="3" style="width:100%;"></textarea>' +
+          '<textarea class="_301interactivebot-faq-a" rows="3" style="width:100%;"></textarea>' +
         '</div>' +
-        '<button type="button" class="button 301interactivebot-faq-remove">Remove</button>' +
+        '<button type="button" class="button _301interactivebot-faq-remove">Remove</button>' +
       '</div>'
     );
-    $("#301interactivebot-faq-list").append($row);
+    $("#_301interactivebot-faq-list").append($row);
     bindFaqRow($row);
     serializeFaqs();
   });
 
 
   function serviceAreaIndex(){
-    return $("#301interactivebot-service-area-list .301interactivebot-service-area-row").length;
+    return $("#_301interactivebot-service-area-list ._301interactivebot-service-area-row").length;
   }
 
   function bindServiceAreaRow($row){
-    $row.find('.301interactivebot-service-area-remove').on('click', function(){
+    $row.find('._301interactivebot-service-area-remove').on('click', function(){
       $row.remove();
     });
   }
 
-  $("#301interactivebot-service-area-list .301interactivebot-service-area-row").each(function(){
+  $("#_301interactivebot-service-area-list ._301interactivebot-service-area-row").each(function(){
     bindServiceAreaRow($(this));
   });
 
-  $("#301interactivebot-service-area-add").on('click', function(){
+  $("#_301interactivebot-service-area-add").on('click', function(){
     const i = serviceAreaIndex();
     const $row = $(
-      '<div class="301interactivebot-service-area-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">' +
+      '<div class="_301interactivebot-service-area-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">' +
         '<div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;margin-bottom:8px;">' +
           '<label>State</label>' +
           '<input type="text" name="301interactivebot_settings[service_areas]['+i+'][state]" placeholder="KY" />' +
@@ -357,10 +357,10 @@ jQuery(function($){
           '<label>Email List</label>' +
           '<input type="text" name="301interactivebot_settings[service_areas]['+i+'][email-list]" placeholder="a@x.com, b@y.com" />' +
         '</div>' +
-        '<button type="button" class="button 301interactivebot-service-area-remove">Remove</button>' +
+        '<button type="button" class="button _301interactivebot-service-area-remove">Remove</button>' +
       '</div>'
     );
-    $("#301interactivebot-service-area-list").append($row);
+    $("#_301interactivebot-service-area-list").append($row);
     bindServiceAreaRow($row);
   });
 

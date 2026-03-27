@@ -65,7 +65,7 @@
 
   // ---------- UI helpers ----------
   function setStatus($w, msg){
-    const $status = $w.find(".301interactivebot-status");
+    const $status = $w.find("._301interactivebot-status");
     const text = msg || "";
     $status.text(text);
     $status.toggleClass("is-visible", !!text);
@@ -73,7 +73,7 @@
 
   function addMsg($box, sender, msg){
     const cls = sender === "admin" ? "bot" : sender; // display admin as bot-style bubble
-    const html = '<div class="301interactivebot-msg '+cls+'">'+ renderRichText(msg) +'</div>';
+    const html = '<div class="_301interactivebot-msg '+cls+'">'+ renderRichText(msg) +'</div>';
     $box.append(html);
     $box.scrollTop($box[0].scrollHeight);
   }
@@ -81,21 +81,21 @@
   function renderRecommended($box, links, chat_id){
     if(!window._301InteractiveBot || !_301InteractiveBot.showRecommendedLinks) return;
     if(!links || !links.length) return;
-    const $wrap = $("<div/>").addClass("301interactivebot-reco-wrap");
-    const $title = $("<div/>").addClass("301interactivebot-reco-title").text("Recommended pages");
-    const $cards = $("<div/>").addClass("301interactivebot-reco-cards");
+    const $wrap = $("<div/>").addClass("_301interactivebot-reco-wrap");
+    const $title = $("<div/>").addClass("_301interactivebot-reco-title").text("Recommended pages");
+    const $cards = $("<div/>").addClass("_301interactivebot-reco-cards");
 
     links.slice(0,6).forEach(l=>{
       const url = (l.url||"").toString();
       if(!url) return;
       const text = (l.title||url).toString();
       const $a = $("<a/>")
-        .addClass("301interactivebot-reco-card")
+        .addClass("_301interactivebot-reco-card")
         .attr("href", url)
         .attr("target","_blank")
         .attr("rel","noopener noreferrer")
-        .append($("<div/>").addClass("301interactivebot-reco-card-title").text(text))
-        .append($("<div/>").addClass("301interactivebot-reco-card-url").text(url));
+        .append($("<div/>").addClass("_301interactivebot-reco-card-title").text(text))
+        .append($("<div/>").addClass("_301interactivebot-reco-card-url").text(url));
 
       $a.on("click", ()=>{
         try{
@@ -116,7 +116,7 @@
   // ---------- Polling ----------
   function pollLoop($w, chat_id, seen, onIncoming, state){
     const pollState = state || { sinceId: 0 };
-    const $box = $w.find(".301interactivebot-messages");
+    const $box = $w.find("._301interactivebot-messages");
     const tick = ()=>{
       fetch(_301InteractiveBot.restBase + "/poll?chat_id=" + encodeURIComponent(chat_id) + "&since_id=" + pollState.sinceId, {
         headers: {"X-WP-Nonce": _301InteractiveBot.nonce},
@@ -148,18 +148,18 @@
   function initWidget($w){
     // Theme/branding
     try{
-      $w.css("--301interactivebot-primary", _301InteractiveBot.primaryColor || "#0b1f3a");
-      $w.css("--301interactivebot-accent", _301InteractiveBot.accentColor || "#2563eb");
-      $w.css("--301interactivebot-bubble", _301InteractiveBot.bubbleColor || "#2563eb");
-      $w.css("--301interactivebot-text", _301InteractiveBot.textColor || "#0b1f3a");
+      $w.css("--_301interactivebot-primary", _301InteractiveBot.primaryColor || "#0b1f3a");
+      $w.css("--_301interactivebot-accent", _301InteractiveBot.accentColor || "#2563eb");
+      $w.css("--_301interactivebot-bubble", _301InteractiveBot.bubbleColor || "#2563eb");
+      $w.css("--_301interactivebot-text", _301InteractiveBot.textColor || "#0b1f3a");
 
       if(_301InteractiveBot.logoUrl){
-        $w.find(".301interactivebot-logo").attr("src", _301InteractiveBot.logoUrl).show();
+        $w.find("._301interactivebot-logo").attr("src", _301InteractiveBot.logoUrl).show();
       }
       if((_301InteractiveBot.closedIcon || "chat") === "none"){
-        $w.find(".301interactivebot-bubble").hide();
+        $w.find("._301interactivebot-bubble").hide();
       } else {
-        $w.find(".301interactivebot-bubble").show();
+        $w.find("._301interactivebot-bubble").show();
       }
     }catch(e){}
 
@@ -186,21 +186,21 @@
     applyWidgetPosition();
     window.addEventListener('resize', function(){ applyWidgetPosition(); }, {passive:true});
 
-    const $box   = $w.find(".301interactivebot-messages");
-    const $input = $w.find(".301interactivebot-input");
-    const $send  = $w.find(".301interactivebot-send");
-    const $thinking = $w.find(".301interactivebot-thinking");
-    const $bubble = $w.find(".301interactivebot-bubble");
-    const $toggle = $w.find(".301interactivebot-toggle");
-    const $window = $w.find(".301interactivebot-window");
-    const $inputRow = $w.find(".301interactivebot-input-row");
-    const $lead = $w.find(".301interactivebot-lead");
-    const $leadFirst = $w.find(".301interactivebot-lead-first");
-    const $leadLast = $w.find(".301interactivebot-lead-last");
-    const $leadPhone = $w.find(".301interactivebot-lead-phone");
-    const $leadEmail = $w.find(".301interactivebot-lead-email");
-    const $leadAddress = $w.find(".301interactivebot-lead-address");
-    const $leadSubmit = $w.find(".301interactivebot-lead-submit");
+    const $box   = $w.find("._301interactivebot-messages");
+    const $input = $w.find("._301interactivebot-input");
+    const $send  = $w.find("._301interactivebot-send");
+    const $thinking = $w.find("._301interactivebot-thinking");
+    const $bubble = $w.find("._301interactivebot-bubble");
+    const $toggle = $w.find("._301interactivebot-toggle");
+    const $window = $w.find("._301interactivebot-window");
+    const $inputRow = $w.find("._301interactivebot-input-row");
+    const $lead = $w.find("._301interactivebot-lead");
+    const $leadFirst = $w.find("._301interactivebot-lead-first");
+    const $leadLast = $w.find("._301interactivebot-lead-last");
+    const $leadPhone = $w.find("._301interactivebot-lead-phone");
+    const $leadEmail = $w.find("._301interactivebot-lead-email");
+    const $leadAddress = $w.find("._301interactivebot-lead-address");
+    const $leadSubmit = $w.find("._301interactivebot-lead-submit");
 
     let chat_id = null;
     let session_key = null;
@@ -227,7 +227,7 @@
     function setPending(on, mode){
       pending = !!on;
       $thinking.toggleClass("is-visible", pending);
-      $thinking.find(".301interactivebot-thinking-text")
+      $thinking.find("._301interactivebot-thinking-text")
         .text(mode === "admin" ? "Admin is replying…" : "Thinking…");
       $input.prop("disabled", pending);
       $send.prop("disabled", pending);
@@ -429,22 +429,22 @@
 
     function showIdleWarning(){
       if(!chat_id) return;
-      if($(".301interactivebot-idle-modal").length) return;
+      if($("._301interactivebot-idle-modal").length) return;
       let remaining = 30;
       const $modal = $(
-        '<div class="301interactivebot-idle-modal">'+
-          '<div class="301interactivebot-idle-card">'+
-            '<div class="301interactivebot-idle-title">Still there?</div>'+
-            '<div class="301interactivebot-idle-text">Your chat will end in 30 seconds.</div>'+
-            '<div class="301interactivebot-idle-actions">'+
-              '<button type="button" class="301interactivebot-idle-keep">Keep Open</button>'+
-              '<button type="button" class="301interactivebot-idle-end">End Now</button>'+
+        '<div class="_301interactivebot-idle-modal">'+
+          '<div class="_301interactivebot-idle-card">'+
+            '<div class="_301interactivebot-idle-title">Still there?</div>'+
+            '<div class="_301interactivebot-idle-text">Your chat will end in 30 seconds.</div>'+
+            '<div class="_301interactivebot-idle-actions">'+
+              '<button type="button" class="_301interactivebot-idle-keep">Keep Open</button>'+
+              '<button type="button" class="_301interactivebot-idle-end">End Now</button>'+
             '</div>'+
           '</div>'+
         '</div>'
       );
       $("body").append($modal);
-      const $text = $modal.find(".301interactivebot-idle-text");
+      const $text = $modal.find("._301interactivebot-idle-text");
       $text.text(`Your chat will end in ${remaining} seconds.`);
       const tick = setInterval(()=>{
         remaining -= 1;
@@ -457,12 +457,12 @@
         $text.text(`Your chat will end in ${remaining} seconds.`);
       }, 1000);
       const clearTick = ()=>{ clearInterval(tick); };
-      $modal.find(".301interactivebot-idle-keep").on("click", ()=>{
+      $modal.find("._301interactivebot-idle-keep").on("click", ()=>{
         clearTick();
         $modal.remove();
         resetIdle();
       });
-      $modal.find(".301interactivebot-idle-end").on("click", ()=>{
+      $modal.find("._301interactivebot-idle-end").on("click", ()=>{
         clearTick();
         $modal.remove();
         endIdle("idle_end_now");
@@ -515,7 +515,7 @@
     function endIdle(reason){
       if(!chat_id) return;
       clearIdle();
-      $(".301interactivebot-idle-modal").remove();
+      $("._301interactivebot-idle-modal").remove();
       // end server-side
       rest("/end","POST",{chat_id}).catch(()=>{});
       fireGA("301interactivebot_chat_end", {chat_id: chat_id, reason: "idle"});
@@ -835,10 +835,10 @@
     $input.on("keydown", (e)=>{ if(e.key === "Enter"){ e.preventDefault(); send(); } });
 
     // End chat button (if present)
-    $w.find(".301interactivebot-endchat").on("click", ()=>{
+    $w.find("._301interactivebot-endchat").on("click", ()=>{
       if(!chat_id) return;
       clearIdle();
-      $(".301interactivebot-idle-modal").remove();
+      $("._301interactivebot-idle-modal").remove();
       rest("/end","POST",{chat_id}).catch(()=>{});
       rest("/event","POST",{chat_id:chat_id, event_type:"chat_end", event_value:"manual", url: window.location.href}).catch(()=>{});
       fireGA("301interactivebot_chat_end", {chat_id: chat_id, reason: "manual"});
@@ -852,7 +852,7 @@
 
   $(function(){
     // Initialize all widgets rendered on page
-    $(".301interactivebot-widget").each(function(){
+    $("._301interactivebot-widget").each(function(){
       initWidget($(this));
     });
   });

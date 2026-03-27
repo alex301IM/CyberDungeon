@@ -287,10 +287,10 @@ class _301InteractiveBot_Admin {
         if (strpos($hook, '301interactivebot') === false) return;
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_media();
-        wp_enqueue_style('301interactivebot-admin', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/admin.css', [], _301INTERACTIVEBOT_VERSION);
+        wp_enqueue_style('_301interactivebot-admin', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/admin.css', [], _301INTERACTIVEBOT_VERSION);
         wp_enqueue_script('wp-color-picker');
-        wp_enqueue_script('301interactivebot-admin', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/admin.js', ['jquery','wp-color-picker'], _301INTERACTIVEBOT_VERSION, true);
-        wp_localize_script('301interactivebot-admin', '_301InteractiveBotAdmin', [
+        wp_enqueue_script('_301interactivebot-admin', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/admin.js', ['jquery','wp-color-picker'], _301INTERACTIVEBOT_VERSION, true);
+        wp_localize_script('_301interactivebot-admin', '_301InteractiveBotAdmin', [
             'restBase' => esc_url_raw(rest_url('301interactivebot/v1')),
             'nonce' => wp_create_nonce('wp_rest'),
             'exportNonce' => wp_create_nonce('301interactivebot_export_vector'),
@@ -421,27 +421,27 @@ class _301InteractiveBot_Admin {
           <h1>Active Chats</h1>
           <p>Select a chat on the left to view messages. Use Takeover to reply as an admin.</p>
 
-          <div class="301interactivebot-live-grid">
-            <div class="301interactivebot-live-list" id="301interactivebot-chat-list"></div>
+          <div class="_301interactivebot-live-grid">
+            <div class="_301interactivebot-live-list" id="_301interactivebot-chat-list"></div>
 
-            <div class="301interactivebot-live-panel">
-              <div class="301interactivebot-live-panel-head">
-                <div id="301interactivebot-chat-title" class="301interactivebot-live-title">Select a chat</div>
-                <div class="301interactivebot-live-actions">
-                  <button class="button" id="301interactivebot-takeover" disabled>Takeover</button>
-                  <button class="button" id="301interactivebot-release" disabled>Release</button>
-                  <button class="button" id="301interactivebot-endchat" disabled>End Chat</button>
-                  <button class="button" id="301interactivebot-block" disabled>Block User</button>
+            <div class="_301interactivebot-live-panel">
+              <div class="_301interactivebot-live-panel-head">
+                <div id="_301interactivebot-chat-title" class="_301interactivebot-live-title">Select a chat</div>
+                <div class="_301interactivebot-live-actions">
+                  <button class="button" id="_301interactivebot-takeover" disabled>Takeover</button>
+                  <button class="button" id="_301interactivebot-release" disabled>Release</button>
+                  <button class="button" id="_301interactivebot-endchat" disabled>End Chat</button>
+                  <button class="button" id="_301interactivebot-block" disabled>Block User</button>
                 </div>
               </div>
 
-              <div id="301interactivebot-chat-summary" class="301interactivebot-live-summary" style="margin-bottom:12px;"></div>
-              <div id="301interactivebot-chat-pages" class="301interactivebot-live-summary" style="margin-bottom:12px;"></div>
-              <div id="301interactivebot-chat-messages" class="301interactivebot-live-messages"></div>
+              <div id="_301interactivebot-chat-summary" class="_301interactivebot-live-summary" style="margin-bottom:12px;"></div>
+              <div id="_301interactivebot-chat-pages" class="_301interactivebot-live-summary" style="margin-bottom:12px;"></div>
+              <div id="_301interactivebot-chat-messages" class="_301interactivebot-live-messages"></div>
 
-              <div class="301interactivebot-live-compose">
-                <input type="text" id="301interactivebot-admin-input" class="regular-text" placeholder="Type a message as admin..." disabled />
-                <button class="button button-primary" id="301interactivebot-admin-send" disabled>Send</button>
+              <div class="_301interactivebot-live-compose">
+                <input type="text" id="_301interactivebot-admin-input" class="regular-text" placeholder="Type a message as admin..." disabled />
+                <button class="button button-primary" id="_301interactivebot-admin-send" disabled>Send</button>
               </div>
             </div>
           </div>
@@ -457,33 +457,33 @@ class _301InteractiveBot_Admin {
           <h1>Chat Viewer</h1>
           <p><a href="<?php echo esc_url(admin_url('admin.php?page=301interactivebot_chats')); ?>">&larr; Back to All Chats</a></p>
 
-          <div id="301interactivebot-live" class="301interactivebot-live">
-            <div class="301interactivebot-live-left" style="display:none">
-              <div class="301interactivebot-live-list" id="301interactivebot-chat-list"></div>
+          <div id="_301interactivebot-live" class="_301interactivebot-live">
+            <div class="_301interactivebot-live-left" style="display:none">
+              <div class="_301interactivebot-live-list" id="_301interactivebot-chat-list"></div>
             </div>
 
-            <div class="301interactivebot-live-right">
-              <div class="301interactivebot-live-top">
+            <div class="_301interactivebot-live-right">
+              <div class="_301interactivebot-live-top">
                 <div>
-                  <div id="301interactivebot-chat-title">Chat #<?php echo (int)$chat_id; ?></div>
-                  <div id="301interactivebot-chat-meta" style="margin-top:4px;color:#6b7280"></div>
+                  <div id="_301interactivebot-chat-title">Chat #<?php echo (int)$chat_id; ?></div>
+                  <div id="_301interactivebot-chat-meta" style="margin-top:4px;color:#6b7280"></div>
                 </div>
-                <div class="301interactivebot-live-actions">
-                  <button class="button" id="301interactivebot-takeover">Takeover</button>
-                  <button class="button" id="301interactivebot-release">Release</button>
-                  <button class="button" id="301interactivebot-endchat">End Chat</button>
-                  <button class="button" id="301interactivebot-resend-transcript">Resend Transcript</button>
-                  <button class="button" id="301interactivebot-block">Block</button>
+                <div class="_301interactivebot-live-actions">
+                  <button class="button" id="_301interactivebot-takeover">Takeover</button>
+                  <button class="button" id="_301interactivebot-release">Release</button>
+                  <button class="button" id="_301interactivebot-endchat">End Chat</button>
+                  <button class="button" id="_301interactivebot-resend-transcript">Resend Transcript</button>
+                  <button class="button" id="_301interactivebot-block">Block</button>
                 </div>
               </div>
 
-              <div id="301interactivebot-chat-summary" class="301interactivebot-live-summary" style="margin-bottom:12px;"></div>
-              <div id="301interactivebot-chat-pages" class="301interactivebot-live-summary" style="margin-bottom:12px;"></div>
-              <div id="301interactivebot-chat-messages" class="301interactivebot-live-messages"></div>
+              <div id="_301interactivebot-chat-summary" class="_301interactivebot-live-summary" style="margin-bottom:12px;"></div>
+              <div id="_301interactivebot-chat-pages" class="_301interactivebot-live-summary" style="margin-bottom:12px;"></div>
+              <div id="_301interactivebot-chat-messages" class="_301interactivebot-live-messages"></div>
 
-              <div class="301interactivebot-live-compose">
-                <input type="text" id="301interactivebot-admin-input" class="regular-text" placeholder="Reply (requires takeover)..." />
-                <button class="button button-primary" id="301interactivebot-admin-send">Send</button>
+              <div class="_301interactivebot-live-compose">
+                <input type="text" id="_301interactivebot-admin-input" class="regular-text" placeholder="Reply (requires takeover)..." />
+                <button class="button button-primary" id="_301interactivebot-admin-send">Send</button>
               </div>
               <p class="description">Transcript is read-only unless you click <strong>Takeover</strong>.</p>
             </div>
@@ -626,17 +626,17 @@ class _301InteractiveBot_Admin {
             <?php wp_nonce_field('301interactivebot_ai_recommendations'); ?>
             <table class="form-table" role="presentation">
               <tr>
-                <th scope="row"><label for="301interactivebot-date-start">Start Date</label></th>
-                <td><input type="date" id="301interactivebot-date-start" name="date_start" value="<?php echo esc_attr($date_start); ?>" required /></td>
+                <th scope="row"><label for="_301interactivebot-date-start">Start Date</label></th>
+                <td><input type="date" id="_301interactivebot-date-start" name="date_start" value="<?php echo esc_attr($date_start); ?>" required /></td>
               </tr>
               <tr>
-                <th scope="row"><label for="301interactivebot-date-end">End Date</label></th>
-                <td><input type="date" id="301interactivebot-date-end" name="date_end" value="<?php echo esc_attr($date_end); ?>" required /></td>
+                <th scope="row"><label for="_301interactivebot-date-end">End Date</label></th>
+                <td><input type="date" id="_301interactivebot-date-end" name="date_end" value="<?php echo esc_attr($date_end); ?>" required /></td>
               </tr>
               <tr>
-                <th scope="row"><label for="301interactivebot-extra-instruction">Optional Instruction</label></th>
+                <th scope="row"><label for="_301interactivebot-extra-instruction">Optional Instruction</label></th>
                 <td>
-                  <textarea id="301interactivebot-extra-instruction" name="extra_instruction" rows="4" class="large-text" placeholder="Example: focus on pricing and financing confusion."><?php echo esc_textarea($extra_instruction); ?></textarea>
+                  <textarea id="_301interactivebot-extra-instruction" name="extra_instruction" rows="4" class="large-text" placeholder="Example: focus on pricing and financing confusion."><?php echo esc_textarea($extra_instruction); ?></textarea>
                 </td>
               </tr>
             </table>
@@ -739,10 +739,10 @@ class _301InteractiveBot_Admin {
                     <?php wp_nonce_field('301interactivebot_email_report_pdf'); ?>
                     <input type="hidden" name="action" value="301interactivebot_email_report_pdf" />
                     <input type="hidden" name="report_id" value="<?php echo (int)$saved_report_id; ?>" />
-                    <label for="301interactivebot-report-emails" class="screen-reader-text">Email recipients</label>
+                    <label for="_301interactivebot-report-emails" class="screen-reader-text">Email recipients</label>
                     <input
                       type="text"
-                      id="301interactivebot-report-emails"
+                      id="_301interactivebot-report-emails"
                       name="recipient_emails"
                       class="regular-text"
                       placeholder="name@example.com, second@example.com"
@@ -831,7 +831,7 @@ class _301InteractiveBot_Admin {
 
         $pdf = self::simple_text_pdf($report, $report['report_json'], $logo_path);
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="301interactivebot-report-' . (int)$report['id'] . '.pdf"');
+        header('Content-Disposition: attachment; filename="_301interactivebot-report-' . (int)$report['id'] . '.pdf"');
         echo $pdf;
         exit;
     }
@@ -856,7 +856,7 @@ class _301InteractiveBot_Admin {
         }
 
         $pdf = self::simple_text_pdf($report, $report['report_json'], $logo_path);
-        $tmp_file = wp_tempnam('301interactivebot-report-' . (int)$report['id'] . '.pdf');
+        $tmp_file = wp_tempnam('_301interactivebot-report-' . (int)$report['id'] . '.pdf');
         if (!$tmp_file) {
             self::redirect_ai_page_with_email_status('failed');
         }
@@ -1477,7 +1477,7 @@ Transcript:
         $deleted = self::delete_vector_store_files($api_key, $vector_store_id);
         if (is_wp_error($deleted)) return $deleted;
 
-        $tmp = wp_tempnam('301interactivebot-vector');
+        $tmp = wp_tempnam('_301interactivebot-vector');
         if (!$tmp) return new WP_Error('301interactivebot_tmp', 'Unable to create temp file.');
         $content = implode("\n\n---\n\n", $chunks);
         file_put_contents($tmp, $content);
@@ -1493,7 +1493,7 @@ Transcript:
             . "Content-Disposition: form-data; name=\"purpose\"\r\n\r\n"
             . "assistants\r\n"
             . "--{$boundary}\r\n"
-            . "Content-Disposition: form-data; name=\"file\"; filename=\"301interactivebot-site-content.txt\"\r\n"
+            . "Content-Disposition: form-data; name=\"file\"; filename=\"_301interactivebot-site-content.txt\"\r\n"
             . "Content-Type: text/plain\r\n\r\n"
             . $file_contents . "\r\n"
             . "--{$boundary}--\r\n";
@@ -1610,9 +1610,9 @@ public static function settings_page() {
               <tr>
                 <th scope="row">Content Export</th>
                 <td>
-                  <button type="button" class="button" id="301interactivebot-export-vector">Export site content to Vector Store</button>
+                  <button type="button" class="button" id="_301interactivebot-export-vector">Export site content to Vector Store</button>
                   <p class="description">Exports public pages/posts and floorplan post types, chunks content, and replaces existing Vector Store files.</p>
-                  <div id="301interactivebot-export-status" style="margin-top:8px;color:#64748b;"></div>
+                  <div id="_301interactivebot-export-status" style="margin-top:8px;color:#64748b;"></div>
                 </td>
               </tr>
             </table>
@@ -1728,17 +1728,17 @@ public static function settings_page() {
                   <p class="description">Used in the default chatbot title, welcome message, and email sender name.</p>
                 </td>
               </tr>
-              <tr><th scope="row">Primary Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[primary_color]" value="<?php echo esc_attr($s['primary_color']); ?>" data-default-color="#0b1f3a" /></td></tr>
-              <tr><th scope="row">Accent Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[accent_color]" value="<?php echo esc_attr($s['accent_color']); ?>" data-default-color="#2563eb" /></td></tr>
-              <tr><th scope="row">Bubble Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[bubble_color]" value="<?php echo esc_attr($s['bubble_color']); ?>" data-default-color="#2563eb" /></td></tr>
-              <tr><th scope="row">Text Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[text_color]" value="<?php echo esc_attr($s['text_color']); ?>" data-default-color="#0b1f3a" /></td></tr>
+              <tr><th scope="row">Primary Color</th><td><input class="_301interactivebot-color" type="text" name="301interactivebot_settings[primary_color]" value="<?php echo esc_attr($s['primary_color']); ?>" data-default-color="#0b1f3a" /></td></tr>
+              <tr><th scope="row">Accent Color</th><td><input class="_301interactivebot-color" type="text" name="301interactivebot_settings[accent_color]" value="<?php echo esc_attr($s['accent_color']); ?>" data-default-color="#2563eb" /></td></tr>
+              <tr><th scope="row">Bubble Color</th><td><input class="_301interactivebot-color" type="text" name="301interactivebot_settings[bubble_color]" value="<?php echo esc_attr($s['bubble_color']); ?>" data-default-color="#2563eb" /></td></tr>
+              <tr><th scope="row">Text Color</th><td><input class="_301interactivebot-color" type="text" name="301interactivebot_settings[text_color]" value="<?php echo esc_attr($s['text_color']); ?>" data-default-color="#0b1f3a" /></td></tr>
               <tr>
                 <th scope="row">Logo</th>
                 <td>
-                  <input type="hidden" id="301interactivebot_logo_id" name="301interactivebot_settings[logo_id]" value="<?php echo (int)$s['logo_id']; ?>" />
-                  <button type="button" class="button" id="301interactivebot_logo_pick">Select / Upload Logo</button>
-                  <button type="button" class="button" id="301interactivebot_logo_clear">Clear</button>
-                  <div id="301interactivebot_logo_preview" style="margin-top:8px">
+                  <input type="hidden" id="_301interactivebot_logo_id" name="301interactivebot_settings[logo_id]" value="<?php echo (int)$s['logo_id']; ?>" />
+                  <button type="button" class="button" id="_301interactivebot_logo_pick">Select / Upload Logo</button>
+                  <button type="button" class="button" id="_301interactivebot_logo_clear">Clear</button>
+                  <div id="_301interactivebot_logo_preview" style="margin-top:8px">
                     <?php if (!empty($s['logo_id'])) echo wp_get_attachment_image((int)$s['logo_id'], [160,40], false, ['style'=>'max-height:40px;width:auto']); ?>
                   </div>
                 </td>
@@ -1784,9 +1784,9 @@ public static function settings_page() {
                 <th scope="row">Service Areas</th>
                 <td>
                   <?php $areas = (array)self::get_service_area_config($s); ?>
-                  <div id="301interactivebot-service-area-list">
+                  <div id="_301interactivebot-service-area-list">
                     <?php foreach ($areas as $i => $area): ?>
-                      <div class="301interactivebot-service-area-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">
+                      <div class="_301interactivebot-service-area-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">
                         <div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;margin-bottom:8px;">
                           <label>State</label>
                           <input type="text" name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][state]" value="<?php echo esc_attr($area['state'] ?? ''); ?>" placeholder="KY" />
@@ -1801,11 +1801,11 @@ public static function settings_page() {
                           <label>Email List</label>
                           <input type="text" name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][email-list]" value="<?php echo esc_attr($area['email-list'] ?? ''); ?>" placeholder="a@x.com, b@y.com" />
                         </div>
-                        <button type="button" class="button 301interactivebot-service-area-remove">Remove</button>
+                        <button type="button" class="button _301interactivebot-service-area-remove">Remove</button>
                       </div>
                     <?php endforeach; ?>
                   </div>
-                  <button type="button" class="button" id="301interactivebot-service-area-add">Add Service Area</button>
+                  <button type="button" class="button" id="_301interactivebot-service-area-add">Add Service Area</button>
                   <p class="description">Edit service areas without raw JSON. Counties are one per line.</p>
                 </td>
               </tr>
@@ -1818,24 +1818,24 @@ public static function settings_page() {
               $faq_items = json_decode((string)($s['faq_json'] ?? '[]'), true);
               if (!is_array($faq_items)) $faq_items = [];
             ?>
-            <input type="hidden" id="301interactivebot_faq_json" name="301interactivebot_settings[faq_json]" value="<?php echo esc_attr(wp_json_encode($faq_items)); ?>" />
-            <div id="301interactivebot-faq-list">
+            <input type="hidden" id="_301interactivebot_faq_json" name="301interactivebot_settings[faq_json]" value="<?php echo esc_attr(wp_json_encode($faq_items)); ?>" />
+            <div id="_301interactivebot-faq-list">
               <?php if (empty($faq_items)) $faq_items = [['q' => '', 'a' => '']]; ?>
               <?php foreach ($faq_items as $item): ?>
-                <div class="301interactivebot-faq-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">
+                <div class="_301interactivebot-faq-row" style="margin-bottom:12px;border:1px solid #e5e7eb;padding:12px;border-radius:10px;">
                   <div style="margin-bottom:8px;">
                     <label style="display:block;font-weight:600;margin-bottom:4px;">Question</label>
-                    <input type="text" class="301interactivebot-faq-q" value="<?php echo esc_attr($item['q'] ?? ''); ?>" style="width:100%;" />
+                    <input type="text" class="_301interactivebot-faq-q" value="<?php echo esc_attr($item['q'] ?? ''); ?>" style="width:100%;" />
                   </div>
                   <div style="margin-bottom:8px;">
                     <label style="display:block;font-weight:600;margin-bottom:4px;">Answer</label>
-                    <textarea class="301interactivebot-faq-a" rows="3" style="width:100%;"><?php echo esc_textarea($item['a'] ?? ''); ?></textarea>
+                    <textarea class="_301interactivebot-faq-a" rows="3" style="width:100%;"><?php echo esc_textarea($item['a'] ?? ''); ?></textarea>
                   </div>
-                  <button type="button" class="button 301interactivebot-faq-remove">Remove</button>
+                  <button type="button" class="button _301interactivebot-faq-remove">Remove</button>
                 </div>
               <?php endforeach; ?>
             </div>
-            <button type="button" class="button" id="301interactivebot-faq-add">Add FAQ</button>
+            <button type="button" class="button" id="_301interactivebot-faq-add">Add FAQ</button>
 
             <h2>System Prompt</h2>
             <textarea name="301interactivebot_settings[system_prompt]" rows="10" style="width:100%"><?php echo esc_textarea($s['system_prompt']); ?></textarea>
