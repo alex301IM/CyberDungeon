@@ -87,6 +87,12 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
         'idleTimeoutSeconds' => (int)($settings['idle_timeout_seconds'] ?? 300),
         'leadCaptureMode' => $settings['lead_capture_mode'] ?? 'form',
         'showRecommendedLinks' => !empty($settings['show_recommended_links']),
+        'requireEmail' => !empty($settings['require_email']),
+        'requirePhone' => !empty($settings['require_phone']),
+        'requireAddress' => !empty($settings['require_address']),
+        'escalationEnabled' => !empty($settings['escalation_enabled']),
+        'escalationKeywords' => preg_split('/[\r\n,;]+/', (string)($settings['escalation_keywords_raw'] ?? ''), -1, PREG_SPLIT_NO_EMPTY),
+        'leadPromptIntro' => $settings['lead_prompt_intro'] ?? 'To help with your request, please share your contact details.',
 
         // Widget settings
         'widgetMode' => $settings['show_mode'] ?? 'floating',

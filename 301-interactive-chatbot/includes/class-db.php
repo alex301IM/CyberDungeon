@@ -196,6 +196,12 @@ class _301InteractiveBot_DB {
             'exclude_pages_raw' => '',
             'lead_capture_mode' => 'form',
             'show_recommended_links' => 0,
+            'require_email' => 0,
+            'require_phone' => 0,
+            'require_address' => 1,
+            'escalation_enabled' => 1,
+            'escalation_keywords_raw' => "price\npricing\nquote\nestimate\ncost\nhow much\ntalk to someone\nspeak to someone\nhuman",
+            'lead_prompt_intro' => 'To help with your request, please share your contact details.',
             'enable_third_party_api' => 0,
         ]);
 

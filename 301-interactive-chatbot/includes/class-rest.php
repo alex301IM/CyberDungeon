@@ -341,6 +341,13 @@ class _301InteractiveBot_REST {
         $phone = self::sanitize_text($params['phone'] ?? '', 255);
         $email = sanitize_email($params['email'] ?? '');
         $address = self::sanitize_text($params['address'] ?? '', 255);
+        $settings = self::settings();
+        $require_email = !empty($settings['require_email']);
+        $require_phone = !empty($settings['require_phone']);
+        $require_address = !empty($settings['require_address']);
+        if ($first === '' || $last === '' || ($require_address && $address === '') || ($require_email && $email === '') || ($require_phone && $phone === '')) {
+            return new WP_REST_Response(['error' => 'Missing required lead fields'], 400);
+        }
         $county = self::sanitize_text($params['build_county'] ?? '', 100);
         $state = self::sanitize_text($params['build_state'] ?? '', 100);
         if (!$county) $county = self::sanitize_text($params['build_city'] ?? '', 100);

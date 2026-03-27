@@ -16,10 +16,33 @@ class _301InteractiveBot_OpenAI {
         // Responses API expects input messages with string content (Chat Completions-compatible shape).
         $input = [];
         $input[] = ['role' => 'system', 'content' => $system];
+        $require_email = !empty($settings['require_email']);
+        $require_phone = !empty($settings['require_phone']);
+        $require_address = !empty($settings['require_address']);
+        $required_fields = ['First Name', 'Last Name'];
+        if ($require_address) $required_fields[] = 'Address';
+        if ($require_email) $required_fields[] = 'Email';
+        if ($require_phone) $required_fields[] = 'Phone';
+        $optional_fields = [];
+        if (!$require_address) $optional_fields[] = 'Address';
+        if (!$require_email) $optional_fields[] = 'Email';
+        if (!$require_phone) $optional_fields[] = 'Phone';
+
         $input[] = [
             'role' => 'system',
-            'content' => 'Lead capture rule override: Required fields are First Name, Last Name, Email, County, and State. Phone is optional and must never be required.',
+            'content' => 'Lead capture rule override: Required fields are ' . implode(', ', $required_fields) . '.'
+                . (!empty($optional_fields) ? ' Optional fields are ' . implode(', ', $optional_fields) . '.' : ''),
         ];
+        if (!empty($settings['escalation_enabled'])) {
+            $keywords = preg_split('/[\r\n,;]+/', (string)($settings['escalation_keywords_raw'] ?? ''), -1, PREG_SPLIT_NO_EMPTY);
+            $keywords = array_values(array_filter(array_map('sanitize_text_field', (array)$keywords)));
+            if (!empty($keywords)) {
+                $input[] = [
+                    'role' => 'system',
+                    'content' => 'Escalation policy: if user intent matches any of these phrases, set should_collect_lead=true: ' . implode(', ', $keywords) . '.',
+                ];
+            }
+        }
 
         $price_list_data = self::get_chat_price_list_data($chat_id, $settings);
         $price_list_context = self::build_price_list_context($price_list_data);

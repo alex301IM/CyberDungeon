@@ -214,9 +214,13 @@
     let leadFlow = null;
     let pendingLeadLinks = null;
     let leadCollected = false;
-    let pendingPricingRequest = false;
-    let priceListSharedForLead = false;
     const leadCaptureMode = (_301InteractiveBot.leadCaptureMode || "form").toString();
+    const requireEmail = !!_301InteractiveBot.requireEmail;
+    const requirePhone = !!_301InteractiveBot.requirePhone;
+    const requireAddress = !!_301InteractiveBot.requireAddress;
+    const escalationEnabled = !!_301InteractiveBot.escalationEnabled;
+    const escalationKeywords = Array.isArray(_301InteractiveBot.escalationKeywords) ? _301InteractiveBot.escalationKeywords.map(v=>(v||"").toString().trim().toLowerCase()).filter(Boolean) : [];
+    const leadPromptIntro = (_301InteractiveBot.leadPromptIntro || "To help with your request, please share your contact details.").toString();
 
     // pending lock (only defined once)
     let pending = false;
@@ -248,16 +252,12 @@
     };
 
     // Service-area and county/state mapping logic intentionally disabled for generic deployments.
-    /*
-    const serviceAreaConfig = Array.isArray(_301InteractiveBot.serviceAreaConfig) ? _301InteractiveBot.serviceAreaConfig : [];
-    const stateCountyMap = {};
-    const countyStateMap = {};
-    const countyLabelLookup = {};
-    ...
-    */
 
     function detectPricingIntent(text){
-      return /(price|pricing|cost|how much|quote|estimate)/i.test((text || "").toString());
+      const msg = (text || "").toString().toLowerCase();
+      if(/\b(price|pricing|cost|how much|quote|estimate)\b/i.test(msg)) return true;
+      if(!escalationEnabled || !escalationKeywords.length) return false;
+      return escalationKeywords.some(keyword => keyword && msg.includes(keyword));
     }
 
     function shouldOpenLeadFromReply(replyText){
@@ -273,10 +273,6 @@
     }
 
     // Service-area price list sharing intentionally disabled for generic deployments.
-    /*
-    function findServiceAreaForLead(county, state){ ... }
-    function maybeSharePriceList(payload){ ... }
-    */
 
     function getLeadPayload(){
       return {
@@ -289,7 +285,10 @@
     }
 
     function isLeadComplete(payload){
-      return payload.first_name && payload.last_name && payload.address;
+      const hasAddress = !requireAddress || !!payload.address;
+      const hasEmail = !requireEmail || !!payload.email;
+      const hasPhone = !requirePhone || !!payload.phone;
+      return payload.first_name && payload.last_name && hasAddress && hasEmail && hasPhone;
     }
 
     function shouldCollectLeadNow(){
@@ -485,8 +484,6 @@
       leadSavedPayload = null;
       leadFlow = null;
       pendingLeadLinks = null;
-      pendingPricingRequest = false;
-      priceListSharedForLead = false;
       if(leadSaveTimer){
         clearTimeout(leadSaveTimer);
         leadSaveTimer = null;
@@ -596,8 +593,14 @@
     });
     $leadSubmit.on("click", ()=>{
       const payload = getLeadPayload();
-      if(!payload.first_name || !payload.last_name || !payload.address){
-        setStatus($w, "First Name, Last Name, and Address are required.");
+      const missing = [];
+      if(!payload.first_name) missing.push("First Name");
+      if(!payload.last_name) missing.push("Last Name");
+      if(requireAddress && !payload.address) missing.push("Address");
+      if(requireEmail && !payload.email) missing.push("Email");
+      if(requirePhone && !payload.phone) missing.push("Phone");
+      if(missing.length){
+        setStatus($w, `${missing.join(", ")} ${missing.length === 1 ? "is" : "are"} required.`);
         return;
       }
       setStatus($w, "");
@@ -617,8 +620,10 @@
       if(leadCaptureMode !== "chat") return;
       if(leadFlow && leadFlow.active) return;
       leadFlow = {active: true, step: "first_name", data: {}};
-      addMsg($box, "bot", "To help with pricing, please share your first name.");
-      seen.add("bot", "To help with pricing, please share your first name.");
+      addMsg($box, "bot", leadPromptIntro);
+      seen.add("bot", leadPromptIntro);
+      addMsg($box, "bot", "What’s your first name?");
+      seen.add("bot", "What’s your first name?");
     }
 
     function handleLeadChatInput(message){
@@ -639,24 +644,46 @@
           seen.add("bot", "What’s your phone number? (optional, type skip to continue)");
           return true;
         case "phone":
+          if(requirePhone && msg.toLowerCase() === "skip"){
+            addMsg($box, "bot", "Phone is required for this request. What’s your phone number?");
+            seen.add("bot", "Phone is required for this request. What’s your phone number?");
+            return true;
+          }
           leadFlow.data.phone = (msg.toLowerCase() === "skip") ? "" : msg;
           leadFlow.step = "email";
-          addMsg($box, "bot", "What’s your email? (optional, type skip to continue)");
-          seen.add("bot", "What’s your email? (optional, type skip to continue)");
+          if(requireEmail){
+            addMsg($box, "bot", "What’s your email?");
+            seen.add("bot", "What’s your email?");
+          } else {
+            addMsg($box, "bot", "What’s your email? (optional, type skip to continue)");
+            seen.add("bot", "What’s your email? (optional, type skip to continue)");
+          }
           return true;
         case "email":
+          if(requireEmail && msg.toLowerCase() === "skip"){
+            addMsg($box, "bot", "Email is required for this request. What’s your email?");
+            seen.add("bot", "Email is required for this request. What’s your email?");
+            return true;
+          }
           leadFlow.data.email = (msg.toLowerCase() === "skip") ? "" : msg;
-          leadFlow.step = "address";
-          addMsg($box, "bot", "What address are you building at or interested in?");
-          seen.add("bot", "What address are you building at or interested in?");
+          if(requireAddress){
+            leadFlow.step = "address";
+            addMsg($box, "bot", "What address are you building at or interested in?");
+            seen.add("bot", "What address are you building at or interested in?");
+          } else {
+            leadFlow.step = "done";
+          }
           return true;
         case "address":
           leadFlow.data.address = msg;
-          if(!leadFlow.data.address){
+          if(requireAddress && !leadFlow.data.address){
             addMsg($box, "bot", "Please provide an address so we can follow up.");
             seen.add("bot", "Please provide an address so we can follow up.");
             return true;
           }
+          leadFlow.step = "done";
+          // fall through
+        case "done":
           leadFlow.active = false;
           const payload = {
             first_name: leadFlow.data.first_name || "",
@@ -667,7 +694,6 @@
           };
           saveLeadIfReady(true, payload);
           leadCollected = true;
-          //maybeSharePriceList(payload);
           addMsg($box, "bot", "Thanks! We’ve passed your info to a New Home Consultant.");
           seen.add("bot", "Thanks! We’ve passed your info to a New Home Consultant.");
           requestPostLeadResponse(`Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone || "(not provided)"}, Email: ${payload.email || "(not provided)"}, Address: ${payload.address || "(not provided)"}.`);
@@ -738,7 +764,7 @@
       seen.add("user", msg);
       setPending(true, "ai");
       activity();
-      if(detectPricingIntent(msg)) pendingPricingRequest = true;
+      const shouldEscalateNow = detectPricingIntent(msg);
 
       if(handleLeadChatInput(msg)){
         setPending(false);
@@ -777,11 +803,12 @@
         if(resp && resp.user_message_id){
           pollState.sinceId = Math.max(pollState.sinceId, parseInt(resp.user_message_id, 10) || 0);
         }
-        if(resp && resp.should_collect_lead && shouldCollectLeadNow()){
-          pendingPricingRequest = true;
+        if(resp && (resp.should_collect_lead || shouldEscalateNow) && shouldCollectLeadNow()){
           if(leadCaptureMode === "chat"){
             startLeadChatFlow();
           } else {
+            addMsg($box, "bot", leadPromptIntro);
+            seen.add("bot", leadPromptIntro);
             toggleLeadForm(true);
           }
           if(resp && resp.suggested_links && resp.suggested_links.length){

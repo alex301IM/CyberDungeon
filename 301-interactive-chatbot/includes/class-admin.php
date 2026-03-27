@@ -76,6 +76,12 @@ class _301InteractiveBot_Admin {
             'idle_timeout_seconds' => 300,
             'lead_capture_mode' => 'form',
             'show_recommended_links' => 0,
+            'require_email' => 0,
+            'require_phone' => 0,
+            'require_address' => 1,
+            'escalation_enabled' => 1,
+            'escalation_keywords_raw' => "price\npricing\nquote\nestimate\ncost\nhow much\ntalk to someone\nspeak to someone\nhuman",
+            'lead_prompt_intro' => 'To help with your request, please share your contact details.',
 
             // theme/branding
             'company_name' => $site_name,
@@ -135,6 +141,12 @@ class _301InteractiveBot_Admin {
         $mode = sanitize_text_field($input['lead_capture_mode'] ?? $out['lead_capture_mode']);
         $out['lead_capture_mode'] = in_array($mode, ['form', 'chat'], true) ? $mode : 'form';
         $out['show_recommended_links'] = !empty($input['show_recommended_links']) ? 1 : 0;
+        $out['require_email'] = !empty($input['require_email']) ? 1 : 0;
+        $out['require_phone'] = !empty($input['require_phone']) ? 1 : 0;
+        $out['require_address'] = !empty($input['require_address']) ? 1 : 0;
+        $out['escalation_enabled'] = !empty($input['escalation_enabled']) ? 1 : 0;
+        $out['escalation_keywords_raw'] = sanitize_textarea_field($input['escalation_keywords_raw'] ?? $out['escalation_keywords_raw']);
+        $out['lead_prompt_intro'] = sanitize_text_field($input['lead_prompt_intro'] ?? $out['lead_prompt_intro']);
         $out['enable_third_party_api'] = !empty($input['enable_third_party_api']) ? 1 : 0;
 
         $out['primary_color'] = sanitize_hex_color($input['primary_color'] ?? $out['primary_color']) ?: $out['primary_color'];
@@ -1672,6 +1684,37 @@ public static function settings_page() {
                     <input type="checkbox" name="301interactivebot_settings[show_recommended_links]" value="1" <?php checked((int)$s['show_recommended_links'], 1); ?> />
                     Show recommended page cards
                   </label>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Required Lead Fields</th>
+                <td>
+                  <label style="display:block;margin-bottom:4px;">
+                    <input type="checkbox" name="301interactivebot_settings[require_address]" value="1" <?php checked((int)$s['require_address'], 1); ?> />
+                    Require Address
+                  </label>
+                  <label style="display:block;margin-bottom:4px;">
+                    <input type="checkbox" name="301interactivebot_settings[require_email]" value="1" <?php checked((int)$s['require_email'], 1); ?> />
+                    Require Email
+                  </label>
+                  <label style="display:block;">
+                    <input type="checkbox" name="301interactivebot_settings[require_phone]" value="1" <?php checked((int)$s['require_phone'], 1); ?> />
+                    Require Phone
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Conversation Policy</th>
+                <td>
+                  <label style="display:block;margin-bottom:8px;">
+                    <input type="checkbox" name="301interactivebot_settings[escalation_enabled]" value="1" <?php checked((int)$s['escalation_enabled'], 1); ?> />
+                    Enable escalation trigger keywords
+                  </label>
+                  <label style="display:block;font-weight:600;margin-bottom:4px;">Escalation Keywords</label>
+                  <textarea name="301interactivebot_settings[escalation_keywords_raw]" rows="4" style="width:520px" placeholder="price&#10;quote&#10;speak to someone"><?php echo esc_textarea($s['escalation_keywords_raw']); ?></textarea>
+                  <p class="description">One keyword or phrase per line. If matched, the lead prompt opens immediately.</p>
+                  <label style="display:block;font-weight:600;margin-bottom:4px;">Lead Prompt Intro</label>
+                  <input type="text" name="301interactivebot_settings[lead_prompt_intro]" value="<?php echo esc_attr($s['lead_prompt_intro']); ?>" style="width:520px" />
                 </td>
               </tr>
             </table>
