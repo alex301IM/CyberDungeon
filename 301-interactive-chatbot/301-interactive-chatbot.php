@@ -67,11 +67,14 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
         return '';
     }
 
-    $companyName = "301 Interactive";
+    $companyName = !empty($settings['company_name']) ? $settings['company_name'] : '301 Interactive';
 
     $atts = shortcode_atts([
         'title' => $companyName.' Assistant',
-        'welcome' => "Hi! I can help answer questions about '.$companyName.' and point you to the right page. What can I help with?"
+        'welcome' => sprintf(
+            'Hi! I can help answer questions about %s and point you to the right page. What can I help with?',
+            $companyName
+        ),
     ], $atts);
 
     wp_enqueue_style('301interactivebot-chat', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/chatbot.css', [], _301INTERACTIVEBOT_VERSION);
@@ -152,14 +155,8 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
               <input class="301interactivebot-lead-first" type="text" placeholder="First Name" />
               <input class="301interactivebot-lead-last" type="text" placeholder="Last Name" />
               <input class="301interactivebot-lead-phone" type="tel" placeholder="Phone (optional)" />
-              <input class="301interactivebot-lead-email" type="email" placeholder="Email" />
-              <select class="301interactivebot-lead-state-select">
-                <option value="">Select Build State</option>
-              </select>
-              <div class="301interactivebot-lead-county-select">
-                <input class="301interactivebot-lead-county-input" type="text" placeholder="Build County (e.g. Bullitt, KY)" autocomplete="off" />
-                <div class="301interactivebot-lead-county-options" role="listbox" aria-label="Build county options"></div>
-              </div>
+              <input class="301interactivebot-lead-email" type="email" placeholder="Email (optional)" />
+              <input class="301interactivebot-lead-address" type="text" placeholder="Address" />
             </div>
             <button class="301interactivebot-lead-submit" type="button">Submit</button>
           </div>

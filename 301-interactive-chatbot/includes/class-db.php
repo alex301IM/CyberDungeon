@@ -43,6 +43,7 @@ class _301InteractiveBot_DB {
             lead_last VARCHAR(255) NULL,
             lead_phone VARCHAR(255) NULL,
             lead_email VARCHAR(255) NULL,
+            lead_address VARCHAR(255) NULL,
             summary LONGTEXT NULL,
             admin_takeover TINYINT(1) NOT NULL DEFAULT 0,
             admin_user_id BIGINT UNSIGNED NULL,
@@ -161,20 +162,25 @@ class _301InteractiveBot_DB {
         dbDelta($sql7);
         dbDelta($sql8);
 
+        $site_name = sanitize_text_field(get_bloginfo('name'));
+        if ($site_name === '') $site_name = 'Website';
+        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        $site_host = is_string($site_host) ? strtolower($site_host) : '';
+        $site_host = preg_replace('/^www\./', '', $site_host);
+        $default_from_email = $site_host ? 'no-reply@' . $site_host : 'no-reply@domain.com';
+
         add_option('301interactivebot_settings', [
             'openai_api_key' => '',
             'model' => 'gpt-4.1-mini',
             'vector_store_id' => '',
             'default_admin_email' => get_option('admin_email'),
+            'company_name' => $site_name,
+            'from_email' => $default_from_email,
             'service_area_config' => [],
-            'build_cities' => ['Louisville', 'Lexington', 'Cincinnati', 'Indianapolis'],
-            'build_counties' => ['Louisville', 'Lexington', 'Cincinnati', 'Indianapolis'],
-            'city_email_map' => [
-                'Louisville' => get_option('admin_email'),
-            ],
-            'county_email_map' => [
-                'Louisville' => get_option('admin_email'),
-            ],
+            'build_cities' => [],
+            'build_counties' => [],
+            'city_email_map' => [],
+            'county_email_map' => [],
             'faq_json' => '[]',
             'system_prompt' => self::default_system_prompt(),
             'autoload' => 1,
@@ -250,14 +256,14 @@ class _301InteractiveBot_DB {
     }
 
     public static function default_system_prompt() {
-        return "You are 301 Interactive' website assistant.\n\n"
+        return "You are a website assistant.\n\n"
         . "Rules:\n"
-        . "- Answer using ONLY information found in the retrieved TaylorHomes.com content and the provided FAQs.\n"
-        . "- If you cannot find the answer in retrieved content, try to use any relevant information from https://www.301interactive.com before saying you are not sure and suggesting the customer request more info.\n"
-        . "- When relevant, recommend a specific TaylorHomes.com page and include its URL.\n"
+        . "- Answer using ONLY information found in retrieved website content and the provided FAQs.\n"
+        . "- If you cannot find the answer in retrieved content, say you are not sure and suggest the customer request more info.\n"
+        . "- When relevant, recommend a specific page and include its URL.\n"
         . "- Be concise, friendly, and professional.\n"
         . "- Ask only one question at a time.\n"
-        . "- If the customer asks about pricing, building, visiting a model, or wants to talk to someone, ask for First Name, Last Name, Email, County + State they want to build in. Phone is optional.\n"
+        . "- If the customer asks about pricing, a quote, or wants to talk to someone, ask for First Name, Last Name, Address, and optional Phone + Email.\n"
         . "- Only suggest recommended pages when you are answering a question (not when asking the customer for info).\n"
         . "- If admin takeover is active, do not respond as the bot.";
     }
@@ -298,6 +304,10 @@ class _301InteractiveBot_DB {
         $has_state = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$chats} LIKE %s", 'build_state'));
         if (!$has_state) {
             $wpdb->query("ALTER TABLE {$chats} ADD COLUMN build_state VARCHAR(100) NULL");
+        }
+        $has_address = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$chats} LIKE %s", 'lead_address'));
+        if (!$has_address) {
+            $wpdb->query("ALTER TABLE {$chats} ADD COLUMN lead_address VARCHAR(255) NULL");
         }
     }
 

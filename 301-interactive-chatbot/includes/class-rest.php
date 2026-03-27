@@ -340,11 +340,12 @@ class _301InteractiveBot_REST {
         $last  = self::sanitize_text($params['last_name'] ?? '', 255);
         $phone = self::sanitize_text($params['phone'] ?? '', 255);
         $email = sanitize_email($params['email'] ?? '');
+        $address = self::sanitize_text($params['address'] ?? '', 255);
         $county = self::sanitize_text($params['build_county'] ?? '', 100);
         $state = self::sanitize_text($params['build_state'] ?? '', 100);
-        if (!$county) {
-            $county = self::sanitize_text($params['build_city'] ?? '', 100);
-        }
+        if (!$county) $county = self::sanitize_text($params['build_city'] ?? '', 100);
+        // Service-area inference intentionally disabled for generic deployments.
+        /*
         if (!$state && $county) {
             if (preg_match('/([A-Za-z]{2})$/', trim($county), $match)) {
                 $state = strtoupper($match[1]);
@@ -354,6 +355,7 @@ class _301InteractiveBot_REST {
             $service_area = _301InteractiveBot_Admin::find_service_area_by_county($county, $state, self::settings());
             if (!$state && !empty($service_area['state'])) $state = strtoupper(sanitize_text_field($service_area['state']));
         }
+        */
 
         $chats = $wpdb->prefix . '301interactivebot_chats';
         $msgs  = $wpdb->prefix . '301interactivebot_messages';
@@ -362,6 +364,7 @@ class _301InteractiveBot_REST {
             'lead_last' => $last,
             'lead_phone' => $phone,
             'lead_email' => $email,
+            'lead_address' => $address,
             'build_county' => $county,
             'build_state' => $state,
             'build_city' => $county,
@@ -369,15 +372,13 @@ class _301InteractiveBot_REST {
 
         if ($announce) {
             $email_line = $email ? $email : '(not provided)';
-            $state_suffix = $state ? ' ' . $state : '';
             $summary = sprintf(
-                'Customer info submitted: %s %s, Phone: %s, Email: %s, County: %s%s.',
+                'Customer info submitted: %s %s, Phone: %s, Email: %s, Address: %s.',
                 $first,
                 $last,
                 $phone,
                 $email_line,
-                $county,
-                $state_suffix
+                $address ?: '(not provided)'
             );
             $wpdb->insert($msgs, [
                 'chat_id' => $chat_id,
@@ -393,6 +394,7 @@ class _301InteractiveBot_REST {
             'last' => $last,
             'phone' => $phone,
             'email' => $email,
+            'address' => $address,
             'county' => $county,
             'state' => $state
         ]), $params['current_page'] ?? '');
@@ -489,6 +491,8 @@ class _301InteractiveBot_REST {
         $email_payload = self::build_transcript_email_payload($chat_id, $chat, $email_rows, $email_summary, $pages, $settings, $email_translation_meta);
         self::send_transcript_email($email_payload);
 
+        // Service-area / third-party lead handoff intentionally disabled for generic deployments.
+        /*
         $county = (string)($email_payload['county'] ?? '');
         $state = (string)($email_payload['state'] ?? '');
         $service_area = (array)($email_payload['service_area'] ?? []);
@@ -506,12 +510,18 @@ class _301InteractiveBot_REST {
                 'state' => !empty($state),
             ]);
         }
+        */
     }
 
 
     private static function build_transcript_email_payload($chat_id, $chat, $rows, $summary, $pages, $settings, $translation_meta = []) {
         $county = $chat['build_county'] ?? $chat['build_city'] ?? '';
         $state = $chat['build_state'] ?? '';
+        // Service-area pricing/community routing intentionally disabled for generic deployments.
+        $service_area = [];
+        $price_list_html = '—';
+        $community = '';
+        /*
         $service_area = _301InteractiveBot_Admin::find_service_area_by_county($county, $state, $settings);
         $price_list_name = sanitize_text_field($service_area['price-list-name'] ?? '');
         $price_list_link = esc_url_raw($service_area['price-list-link'] ?? '');
@@ -520,9 +530,12 @@ class _301InteractiveBot_REST {
         if ($price_list_name && $price_list_link) {
             $price_list_html = '<a href="' . esc_url($price_list_link) . '">' . esc_html($price_list_name) . '</a>';
         }
+        */
 
-        $to = self::resolve_admin_recipients($service_area, $settings);
-        $subject = '301 Interactive Chat Transcript — ' . ($county ?: 'Unknown County') . ' — Chat #' . $chat_id;
+        $to = self::resolve_admin_recipients([], $settings);
+        $company_name = sanitize_text_field($settings['company_name'] ?? get_bloginfo('name'));
+        if ($company_name === '') $company_name = 'Website';
+        $subject = $company_name . ' Chat Transcript — Chat #' . $chat_id;
 
         $lead_name = trim(($chat['lead_first'] ?? '') . ' ' . ($chat['lead_last'] ?? ''));
         $lead_name = $lead_name ?: '—';
@@ -567,11 +580,14 @@ class _301InteractiveBot_REST {
               . '<tr><td style="padding:6px 0;color:#64748b;">Status</td><td style="padding:6px 0;">' . esc_html($chat['status'] ?? '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Build County</td><td style="padding:6px 0;">' . esc_html($county ?: '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">State</td><td style="padding:6px 0;">' . esc_html($state ?: '—') . '</td></tr>'
+              /*
               . '<tr><td style="padding:6px 0;color:#64748b;">Community</td><td style="padding:6px 0;">' . esc_html($community ?: '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Price List</td><td style="padding:6px 0;">' . $price_list_html . '</td></tr>'
+              */
               . '<tr><td style="padding:6px 0;color:#64748b;">Lead</td><td style="padding:6px 0;">' . esc_html($lead_name) . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Phone</td><td style="padding:6px 0;">' . esc_html($chat['lead_phone'] ?? '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Email</td><td style="padding:6px 0;">' . esc_html($chat['lead_email'] ?? '—') . '</td></tr>'
+              . '<tr><td style="padding:6px 0;color:#64748b;">Address</td><td style="padding:6px 0;">' . esc_html($chat['lead_address'] ?? '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Current Page</td><td style="padding:6px 0;">' . esc_html($chat['current_page'] ?? '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">Referrer</td><td style="padding:6px 0;">' . esc_html($chat['referrer'] ?? '—') . '</td></tr>'
               . '<tr><td style="padding:6px 0;color:#64748b;">UTM Source/Medium/Campaign</td><td style="padding:6px 0;">'
@@ -607,6 +623,11 @@ class _301InteractiveBot_REST {
     private static function send_transcript_email($payload) {
         $to = (array)($payload['to'] ?? []);
         if (empty($to)) return false;
+        $settings = self::settings();
+        $company_name = sanitize_text_field($settings['company_name'] ?? '301 Interactive');
+        $from_email = sanitize_email($settings['from_email'] ?? 'no-reply@301interactive.com');
+        if ($company_name === '') $company_name = '301 Interactive';
+        if ($from_email === '') $from_email = 'no-reply@301interactive.com';
 		
         return wp_mail(
             $to,
@@ -614,7 +635,7 @@ class _301InteractiveBot_REST {
             (string)($payload['body'] ?? ''),
              [
 				'Content-Type: text/html; charset=UTF-8',
-				'From: 301 Interactive <no-reply@301interactive.com>',
+				sprintf('From: %s <%s>', $company_name, $from_email),
         	]
         );
     }
@@ -701,6 +722,8 @@ class _301InteractiveBot_REST {
             }
 		}
 
+        // Service-area email list routing intentionally disabled for generic deployments.
+        /*
         $email_list_raw = (string)($service_area['email-list'] ?? '');
         if ($email_list_raw !== '') {
             $parts = preg_split('/[\s,;]+/', $email_list_raw);
@@ -709,6 +732,7 @@ class _301InteractiveBot_REST {
                 if ($email) $recipients[$email] = true;
             }
         }
+        */
 
         return array_keys($recipients);
     }

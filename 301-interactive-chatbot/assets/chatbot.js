@@ -199,9 +199,7 @@
     const $leadLast = $w.find(".301interactivebot-lead-last");
     const $leadPhone = $w.find(".301interactivebot-lead-phone");
     const $leadEmail = $w.find(".301interactivebot-lead-email");
-    const $leadStateSelect = $w.find(".301interactivebot-lead-state-select");
-    const $leadCountyInput = $w.find(".301interactivebot-lead-county-input");
-    const $leadCountyOptions = $w.find(".301interactivebot-lead-county-options");
+    const $leadAddress = $w.find(".301interactivebot-lead-address");
     const $leadSubmit = $w.find(".301interactivebot-lead-submit");
 
     let chat_id = null;
@@ -249,65 +247,14 @@
       }
     };
 
+    // Service-area and county/state mapping logic intentionally disabled for generic deployments.
+    /*
     const serviceAreaConfig = Array.isArray(_301InteractiveBot.serviceAreaConfig) ? _301InteractiveBot.serviceAreaConfig : [];
     const stateCountyMap = {};
     const countyStateMap = {};
     const countyLabelLookup = {};
-
-    function normalizeCountyName(name){
-      return (name || "").toString().trim().replace(/\s+County$/i, "");
-    }
-
-    function formatCountyLabel(county, state){
-      const base = normalizeCountyName(county);
-      return state ? `${base}, ${state}` : base;
-    }
-
-    serviceAreaConfig.forEach(area=>{
-      const state = ((area && area.state) || "").toString().trim().toUpperCase();
-      if(!state) return;
-      const counties = Array.isArray(area && area.counties) ? area.counties : [];
-      if(!stateCountyMap[state]) stateCountyMap[state] = [];
-      counties.forEach(county=>{
-        const rawCounty = (county || "").toString().trim();
-        if(!rawCounty) return;
-        const normalizedCounty = normalizeCountyName(rawCounty);
-        const label = formatCountyLabel(rawCounty, state);
-        const row = { county: rawCounty, state, label, normalizedCounty };
-        stateCountyMap[state].push(row);
-        if(!countyStateMap[rawCounty]) countyStateMap[rawCounty] = state;
-        if(!countyStateMap[normalizedCounty]) countyStateMap[normalizedCounty] = state;
-        countyLabelLookup[label.toLowerCase()] = row;
-      });
-    });
-
-    Object.keys(stateCountyMap).forEach(st=>{
-      stateCountyMap[st].sort((a,b)=>a.label.localeCompare(b.label));
-    });
-
-    const stateOptions = Object.keys(stateCountyMap).sort();
-    stateOptions.forEach(st=>{
-      $leadStateSelect.append($('<option></option>').val(st).text(st));
-    });
-
-    let buildCounties = [];
-    Object.keys(stateCountyMap).forEach(st=>{
-      buildCounties = buildCounties.concat(stateCountyMap[st]);
-    });
-    buildCounties.sort((a,b)=>a.label.localeCompare(b.label));
-
-    if(!buildCounties.length){
-      buildCounties = (_301InteractiveBot.buildCounties || _301InteractiveBot.buildCities || [])
-        .map(c => ({ county: (c || "").toString().trim(), state: countyStateMap[(c || "").toString().trim()] || "", label: (c || "").toString().trim(), normalizedCounty: normalizeCountyName(c) }))
-        .filter(c => c.county)
-        .sort((a,b)=>a.label.localeCompare(b.label));
-    }
-
-    function getCountyCandidates(){
-      const selectedState = ($leadStateSelect.val() || "").trim().toUpperCase();
-      if(selectedState && stateCountyMap[selectedState]) return stateCountyMap[selectedState];
-      return buildCounties;
-    }
+    ...
+    */
 
     function detectPricingIntent(text){
       return /(price|pricing|cost|how much|quote|estimate)/i.test((text || "").toString());
@@ -319,184 +266,30 @@
       const asksLead = (
         /first\s*name/.test(txt) &&
         /last\s*name/.test(txt) &&
-        /email/.test(txt) &&
-        (/county/.test(txt) || /state/.test(txt))
+        /address/.test(txt)
       );
       const explicitLeadPrompt = /please provide|share your|to get your info|get your info|lead info/.test(txt);
       return asksLead || explicitLeadPrompt;
     }
 
-    function findServiceAreaForLead(county, state){
-      const list = Array.isArray(_301InteractiveBot.serviceAreaConfig) ? _301InteractiveBot.serviceAreaConfig : [];
-      const normalizedCounty = normalizeCountyName(county).toLowerCase();
-      const upperState = (state || "").toString().trim().toUpperCase();
-      let fallback = null;
-      for(const area of list){
-        const areaState = ((area && area.state) || "").toString().trim().toUpperCase();
-        const counties = Array.isArray(area && area.counties) ? area.counties : [];
-        const hasCounty = counties.some(c=>normalizeCountyName(c).toLowerCase() === normalizedCounty);
-        if(!hasCounty) continue;
-        if(upperState && areaState === upperState) return area;
-        if(!fallback) fallback = area;
-      }
-      return fallback;
-    }
-
-    function maybeSharePriceList(payload){
-      if(!pendingPricingRequest || priceListSharedForLead) return;
-      const area = findServiceAreaForLead(payload.build_county, payload.build_state);
-      if(!area) return;
-      const link = ((area['price-list-link'] || '') + '').trim();
-      const name = ((area['price-list-name'] || '') + '').trim() || 'Price List';
-      if(!link) return;
-      const msg = `Here is your ${name}: ${link}`;
-      addMsg($box, "bot", msg);
-      seen.add("bot", msg);
-      priceListSharedForLead = true;
-      pendingPricingRequest = false;
-    }
-
-    function renderCountyOptions(filterValue){
-      const filter = (filterValue || "").toLowerCase();
-      const matches = getCountyCandidates().filter(item => {
-        return !filter || item.label.toLowerCase().includes(filter) || item.county.toLowerCase().includes(filter);
-      });
-      $leadCountyOptions.empty();
-      if(matches.length === 0){
-        $leadCountyOptions.append('<div class="301interactivebot-lead-county-option">No matches</div>');
-        return;
-      }
-      matches.forEach((item, idx)=>{
-        const $opt = $('<div class="301interactivebot-lead-county-option" role="option"></div>');
-        $opt.text(item.label);
-        $opt.attr('data-county', item.county);
-        $opt.attr('data-state', item.state);
-        if(idx === 0) $opt.addClass("is-active");
-        $leadCountyOptions.append($opt);
-      });
-    }
-
-    function openCountyOptions(){
-      if(!$leadCountyOptions.length) return;
-      renderCountyOptions($leadCountyInput.val());
-      $leadCountyOptions.addClass("is-open");
-    }
-
-    function closeCountyOptions(){
-      $leadCountyOptions.removeClass("is-open");
-    }
-
-    function applyCountyOption($option){
-      const county = ($option.attr('data-county') || '').trim();
-      const state = ($option.attr('data-state') || '').trim().toUpperCase();
-      const label = county ? formatCountyLabel(county, state) : ($option.text() || '').trim();
-      if(label) $leadCountyInput.val(label);
-      if(state) $leadStateSelect.val(state);
-    }
-
-    $leadStateSelect.on('change', ()=>{
-      $leadCountyInput.val('');
-      renderCountyOptions('');
-      scheduleLeadSave();
-    });
-
-    $leadCountyInput.on("focus input", ()=>{
-      openCountyOptions();
-      scheduleLeadSave();
-    });
-
-    $leadCountyInput.on("keydown", (e)=>{
-      if(!$leadCountyOptions.hasClass("is-open")) return;
-      const $items = $leadCountyOptions.find(".301interactivebot-lead-county-option");
-      let $active = $items.filter(".is-active").first();
-      if(e.key === "ArrowDown"){
-        e.preventDefault();
-        const $next = $active.length ? $active.next() : $items.first();
-        $active.removeClass("is-active");
-        $next.addClass("is-active");
-        return;
-      }
-      if(e.key === "ArrowUp"){
-        e.preventDefault();
-        const $prev = $active.length ? $active.prev() : $items.last();
-        $active.removeClass("is-active");
-        $prev.addClass("is-active");
-        return;
-      }
-      if(e.key === "Enter"){
-        e.preventDefault();
-        if($active.length && $active.text() !== "No matches"){
-          applyCountyOption($active);
-        }
-        closeCountyOptions();
-        scheduleLeadSave();
-      }
-    });
-
-    $leadCountyOptions.on("click", ".301interactivebot-lead-county-option", function(){
-      const $opt = $(this);
-      if($opt.text() !== "No matches"){
-        applyCountyOption($opt);
-      }
-      closeCountyOptions();
-      scheduleLeadSave();
-    });
-
-    $(document).on("click", (e)=>{
-      if(!$(e.target).closest(".301interactivebot-lead-county-select").length){
-        closeCountyOptions();
-      }
-    });
-
-    function deriveStateFromCounty(county){
-      const selectedState = ($leadStateSelect.val() || "").trim().toUpperCase();
-      if(selectedState) return selectedState;
-      const trimmed = (county || "").trim();
-      if(!trimmed) return "";
-      const lookup = countyLabelLookup[trimmed.toLowerCase()];
-      if(lookup && lookup.state) return lookup.state;
-      const noStateSuffix = trimmed.replace(/,\s*[A-Za-z]{2}$/,'').trim();
-      if(countyStateMap[trimmed]) return countyStateMap[trimmed];
-      if(countyStateMap[noStateSuffix]) return countyStateMap[noStateSuffix];
-      const match = trimmed.match(/,\s*([A-Za-z]{2})$/);
-      if(!match) return "";
-      return match[1].toUpperCase();
-    }
-
-    function resolveCountyFromInput(inputCounty, state){
-      const trimmed = (inputCounty || '').trim();
-      if(!trimmed) return '';
-      const byLabel = countyLabelLookup[trimmed.toLowerCase()];
-      if(byLabel && (!state || byLabel.state === state)) return byLabel.county;
-
-      const base = normalizeCountyName(trimmed.replace(/,\s*[A-Za-z]{2}$/,''));
-      const candidates = state && stateCountyMap[state] ? stateCountyMap[state] : buildCounties;
-      const found = candidates.find(item => item.normalizedCounty.toLowerCase() === base.toLowerCase() || item.county.toLowerCase() === trimmed.toLowerCase());
-      return found ? found.county : base;
-    }
+    // Service-area price list sharing intentionally disabled for generic deployments.
+    /*
+    function findServiceAreaForLead(county, state){ ... }
+    function maybeSharePriceList(payload){ ... }
+    */
 
     function getLeadPayload(){
-      const countyInput = ($leadCountyInput.val() || "").trim();
-      const state = deriveStateFromCounty(countyInput);
       return {
         first_name: ($leadFirst.val() || "").trim(),
         last_name: ($leadLast.val() || "").trim(),
         phone: ($leadPhone.val() || "").trim(),
         email: ($leadEmail.val() || "").trim(),
-        build_county: resolveCountyFromInput(countyInput, state),
-        build_state: state
+        address: ($leadAddress.val() || "").trim()
       };
     }
 
-    function isCountyValid(county, state){
-      const resolvedCounty = resolveCountyFromInput(county, state);
-      if(!resolvedCounty) return false;
-      const scoped = state && stateCountyMap[state] ? stateCountyMap[state] : buildCounties;
-      return scoped.some(item => item.county.toLowerCase() === resolvedCounty.toLowerCase());
-    }
-
     function isLeadComplete(payload){
-      return payload.first_name && payload.last_name && payload.email && payload.build_state && payload.build_county && isCountyValid(payload.build_county, payload.build_state);
+      return payload.first_name && payload.last_name && payload.address;
     }
 
     function shouldCollectLeadNow(){
@@ -688,7 +481,7 @@
       $leadLast.val("");
       $leadPhone.val("");
       $leadEmail.val("");
-      $leadCountyInput.val("");
+      $leadAddress.val("");
       leadSavedPayload = null;
       leadFlow = null;
       pendingLeadLinks = null;
@@ -796,29 +589,20 @@
       }
       $lead.toggle(!!show);
       $inputRow.toggle(!show);
-      if(!show){
-        closeCountyOptions();
-      }
     }
 
-    [$leadFirst, $leadLast, $leadPhone, $leadEmail].forEach($field=>{
+    [$leadFirst, $leadLast, $leadPhone, $leadEmail, $leadAddress].forEach($field=>{
       $field.on("input blur", scheduleLeadSave);
     });
     $leadSubmit.on("click", ()=>{
       const payload = getLeadPayload();
-      if(!payload.first_name || !payload.last_name || !payload.email || !payload.build_state || !payload.build_county){
-        setStatus($w, "First Name, Last Name, Email, State, and County are required.");
-        return;
-      }
-      if(!isCountyValid(payload.build_county, payload.build_state)){
-        setStatus($w, "Please choose a county from the list.");
-        openCountyOptions();
+      if(!payload.first_name || !payload.last_name || !payload.address){
+        setStatus($w, "First Name, Last Name, and Address are required.");
         return;
       }
       setStatus($w, "");
-      const state = payload.build_state ? ` ${payload.build_state}` : "";
       const emailText = payload.email ? `Email: ${payload.email}` : "Email: (not provided)";
-      const summary = `Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone}, ${emailText}, County: ${payload.build_county}${state}.`;
+      const summary = `Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone || "(not provided)"}, ${emailText}, Address: ${payload.address}.`;
       addMsg($box, "user", summary);
       seen.add("user", summary);
       fireGA("301interactivebot_chat_lead_form", {chat_id: chat_id || undefined});
@@ -850,33 +634,27 @@
           return true;
         case "last_name":
           leadFlow.data.last_name = msg;
+          leadFlow.step = "phone";
+          addMsg($box, "bot", "What’s your phone number? (optional, type skip to continue)");
+          seen.add("bot", "What’s your phone number? (optional, type skip to continue)");
+          return true;
+        case "phone":
+          leadFlow.data.phone = (msg.toLowerCase() === "skip") ? "" : msg;
           leadFlow.step = "email";
-          addMsg($box, "bot", "What’s your email?");
-          seen.add("bot", "What’s your email?");
+          addMsg($box, "bot", "What’s your email? (optional, type skip to continue)");
+          seen.add("bot", "What’s your email? (optional, type skip to continue)");
           return true;
         case "email":
-          if(!msg || msg.toLowerCase() === "skip"){
-            addMsg($box, "bot", "Email is required to provide pricing details. What’s your email?");
-            seen.add("bot", "Email is required to provide pricing details. What’s your email?");
-            return true;
-          }
-          leadFlow.data.email = msg;
-          leadFlow.data.phone = "";
-          leadFlow.step = "county";
-          addMsg($box, "bot", "Which build county are you interested in? (include state abbreviation)");
-          seen.add("bot", "Which build county are you interested in? (include state abbreviation)");
+          leadFlow.data.email = (msg.toLowerCase() === "skip") ? "" : msg;
+          leadFlow.step = "address";
+          addMsg($box, "bot", "What address are you building at or interested in?");
+          seen.add("bot", "What address are you building at or interested in?");
           return true;
-        case "county":
-          leadFlow.data.build_state = deriveStateFromCounty(msg);
-          if(!leadFlow.data.build_state){
-            addMsg($box, "bot", "Please include the state abbreviation with the county (for example: Bullitt, KY).");
-            seen.add("bot", "Please include the state abbreviation with the county (for example: Bullitt, KY).");
-            return true;
-          }
-          leadFlow.data.build_county = resolveCountyFromInput(msg, leadFlow.data.build_state);
-          if(!isCountyValid(leadFlow.data.build_county, leadFlow.data.build_state)){
-            addMsg($box, "bot", "Please choose a valid county from the list in format CountyName, ST (for example: Bullitt, KY).");
-            seen.add("bot", "Please choose a valid county from the list in format CountyName, ST (for example: Bullitt, KY).");
+        case "address":
+          leadFlow.data.address = msg;
+          if(!leadFlow.data.address){
+            addMsg($box, "bot", "Please provide an address so we can follow up.");
+            seen.add("bot", "Please provide an address so we can follow up.");
             return true;
           }
           leadFlow.active = false;
@@ -885,15 +663,14 @@
             last_name: leadFlow.data.last_name || "",
             phone: leadFlow.data.phone || "",
             email: leadFlow.data.email || "",
-            build_county: leadFlow.data.build_county || "",
-            build_state: leadFlow.data.build_state || ""
+            address: leadFlow.data.address || ""
           };
           saveLeadIfReady(true, payload);
           leadCollected = true;
           //maybeSharePriceList(payload);
           addMsg($box, "bot", "Thanks! We’ve passed your info to a New Home Consultant.");
           seen.add("bot", "Thanks! We’ve passed your info to a New Home Consultant.");
-          requestPostLeadResponse(`Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone}, Email: ${payload.email || "(not provided)"}, County: ${payload.build_county}${payload.build_state ? " " + payload.build_state : ""}.`);
+          requestPostLeadResponse(`Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone || "(not provided)"}, Email: ${payload.email || "(not provided)"}, Address: ${payload.address || "(not provided)"}.`);
           leadFlow = null;
           return true;
         default:

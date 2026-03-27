@@ -46,6 +46,13 @@ class _301InteractiveBot_Admin {
     }
 
     public static function defaults() {
+        $site_name = sanitize_text_field(get_bloginfo('name'));
+        if ($site_name === '') $site_name = 'Website';
+        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        $site_host = is_string($site_host) ? strtolower($site_host) : '';
+        $site_host = preg_replace('/^www\./', '', $site_host);
+        $default_from_email = $site_host ? 'no-reply@' . $site_host : 'no-reply@domain.com';
+
         return [
             'openai_api_key' => '',
             'model' => 'gpt-4.1-mini',
@@ -71,12 +78,14 @@ class _301InteractiveBot_Admin {
             'show_recommended_links' => 0,
 
             // theme/branding
+            'company_name' => $site_name,
             'primary_color' => '#0b1f3a',
             'accent_color'  => '#2563eb',
             'bubble_color'  => '#2563eb',
             'text_color'    => '#0b1f3a',
             'logo_id' => 0,
             'closed_icon' => 'chat',
+            'from_email' => $default_from_email,
 
             // lead routing
             'service_area_config' => [],
@@ -132,11 +141,17 @@ class _301InteractiveBot_Admin {
         $out['accent_color']  = sanitize_hex_color($input['accent_color'] ?? $out['accent_color']) ?: $out['accent_color'];
         $out['bubble_color']  = sanitize_hex_color($input['bubble_color'] ?? $out['bubble_color']) ?: $out['bubble_color'];
         $out['text_color']    = sanitize_hex_color($input['text_color'] ?? $out['text_color']) ?: $out['text_color'];
+        $out['company_name'] = sanitize_text_field($input['company_name'] ?? $out['company_name']);
 
         $out['logo_id'] = (int)($input['logo_id'] ?? 0);
         $icon = sanitize_text_field($input['closed_icon'] ?? $out['closed_icon']);
         $out['closed_icon'] = in_array($icon, ['chat','none'], true) ? $icon : 'chat';
+        $from_email = sanitize_email($input['from_email'] ?? $out['from_email']);
+        $out['from_email'] = $from_email ?: $out['from_email'];
 
+        // Service-area-specific configuration intentionally disabled for generic deployments.
+        // Keep previous logic commented out for potential future re-enablement.
+        /*
         // Service area config (structured UI or JSON fallback)
         $service_area = $input['service_areas'] ?? null;
         if (!is_array($service_area)) {
@@ -182,6 +197,10 @@ class _301InteractiveBot_Admin {
         $out['service_area_config'] = $clean_areas;
         $out['build_counties'] = self::extract_build_counties_from_service_area($clean_areas);
         $out['build_cities'] = $out['build_counties'];
+        */
+        $out['service_area_config'] = [];
+        $out['build_counties'] = [];
+        $out['build_cities'] = [];
 
         // Legacy county/city email map is deprecated in favor of service_area_config.
         $out['county_email_map'] = [];
@@ -1659,6 +1678,13 @@ public static function settings_page() {
 
             <h2>Theme + Branding</h2>
             <table class="form-table" role="presentation">
+              <tr>
+                <th scope="row">Company Name</th>
+                <td>
+                  <input type="text" name="301interactivebot_settings[company_name]" value="<?php echo esc_attr($s['company_name']); ?>" style="width:420px" />
+                  <p class="description">Used in the default chatbot title, welcome message, and email sender name.</p>
+                </td>
+              </tr>
               <tr><th scope="row">Primary Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[primary_color]" value="<?php echo esc_attr($s['primary_color']); ?>" data-default-color="#0b1f3a" /></td></tr>
               <tr><th scope="row">Accent Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[accent_color]" value="<?php echo esc_attr($s['accent_color']); ?>" data-default-color="#2563eb" /></td></tr>
               <tr><th scope="row">Bubble Color</th><td><input class="301interactivebot-color" type="text" name="301interactivebot_settings[bubble_color]" value="<?php echo esc_attr($s['bubble_color']); ?>" data-default-color="#2563eb" /></td></tr>
@@ -1692,6 +1718,13 @@ public static function settings_page() {
                 <td><input type="text" name="301interactivebot_settings[default_admin_email]" value="<?php echo esc_attr($s['default_admin_email']); ?>" style="width:420px" /></td>
               </tr>
               <tr>
+                <th scope="row">From Email Address</th>
+                <td>
+                  <input type="email" name="301interactivebot_settings[from_email]" value="<?php echo esc_attr($s['from_email']); ?>" style="width:420px" />
+                  <p class="description">Used as the sender email for chatbot transcript emails.</p>
+                </td>
+              </tr>
+              <tr>
                 <th scope="row">Enable 3rd Party API</th>
                 <td>
                   <label>
@@ -1700,6 +1733,10 @@ public static function settings_page() {
                   </label>
                 </td>
               </tr>
+              <?php
+              // Service-area-specific admin UI intentionally disabled for generic deployments.
+              // Keep previous implementation commented out for potential future use.
+              /*
               <tr>
                 <th scope="row">Service Areas</th>
                 <td>
@@ -1711,8 +1748,7 @@ public static function settings_page() {
                           <label>State</label>
                           <input type="text" name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][state]" value="<?php echo esc_attr($area['state'] ?? ''); ?>" placeholder="KY" />
                           <label>Counties</label>
-                          <textarea name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][counties]" rows="4" placeholder="One county per line"><?php echo esc_textarea(implode("
-", (array)($area['counties'] ?? []))); ?></textarea>
+                          <textarea name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][counties]" rows="4" placeholder="One county per line"><?php echo esc_textarea(implode("\n", (array)($area['counties'] ?? []))); ?></textarea>
                           <label>Price List Name</label>
                           <input type="text" name="301interactivebot_settings[service_areas][<?php echo (int)$i; ?>][price-list-name]" value="<?php echo esc_attr($area['price-list-name'] ?? ''); ?>" />
                           <label>Price List Link</label>
@@ -1730,6 +1766,8 @@ public static function settings_page() {
                   <p class="description">Edit service areas without raw JSON. Counties are one per line.</p>
                 </td>
               </tr>
+              */
+              ?>
             </table>
 
             <h2>FAQ</h2>
