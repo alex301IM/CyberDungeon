@@ -65,7 +65,7 @@
 
   // ---------- UI helpers ----------
   function setStatus($w, msg){
-    const $status = $w.find(".301interactivebot-status");
+    const $status = $w.find("._301interactivebot-status");
     const text = msg || "";
     $status.text(text);
     $status.toggleClass("is-visible", !!text);
@@ -73,7 +73,7 @@
 
   function addMsg($box, sender, msg){
     const cls = sender === "admin" ? "bot" : sender; // display admin as bot-style bubble
-    const html = '<div class="301interactivebot-msg '+cls+'">'+ renderRichText(msg) +'</div>';
+    const html = '<div class="_301interactivebot-msg '+cls+'">'+ renderRichText(msg) +'</div>';
     $box.append(html);
     $box.scrollTop($box[0].scrollHeight);
   }
@@ -81,21 +81,21 @@
   function renderRecommended($box, links, chat_id){
     if(!window._301InteractiveBot || !_301InteractiveBot.showRecommendedLinks) return;
     if(!links || !links.length) return;
-    const $wrap = $("<div/>").addClass("301interactivebot-reco-wrap");
-    const $title = $("<div/>").addClass("301interactivebot-reco-title").text("Recommended pages");
-    const $cards = $("<div/>").addClass("301interactivebot-reco-cards");
+    const $wrap = $("<div/>").addClass("_301interactivebot-reco-wrap");
+    const $title = $("<div/>").addClass("_301interactivebot-reco-title").text("Recommended pages");
+    const $cards = $("<div/>").addClass("_301interactivebot-reco-cards");
 
     links.slice(0,6).forEach(l=>{
       const url = (l.url||"").toString();
       if(!url) return;
       const text = (l.title||url).toString();
       const $a = $("<a/>")
-        .addClass("301interactivebot-reco-card")
+        .addClass("_301interactivebot-reco-card")
         .attr("href", url)
         .attr("target","_blank")
         .attr("rel","noopener noreferrer")
-        .append($("<div/>").addClass("301interactivebot-reco-card-title").text(text))
-        .append($("<div/>").addClass("301interactivebot-reco-card-url").text(url));
+        .append($("<div/>").addClass("_301interactivebot-reco-card-title").text(text))
+        .append($("<div/>").addClass("_301interactivebot-reco-card-url").text(url));
 
       $a.on("click", ()=>{
         try{
@@ -116,7 +116,7 @@
   // ---------- Polling ----------
   function pollLoop($w, chat_id, seen, onIncoming, state){
     const pollState = state || { sinceId: 0 };
-    const $box = $w.find(".301interactivebot-messages");
+    const $box = $w.find("._301interactivebot-messages");
     const tick = ()=>{
       fetch(_301InteractiveBot.restBase + "/poll?chat_id=" + encodeURIComponent(chat_id) + "&since_id=" + pollState.sinceId, {
         headers: {"X-WP-Nonce": _301InteractiveBot.nonce},
@@ -148,18 +148,18 @@
   function initWidget($w){
     // Theme/branding
     try{
-      $w.css("--301interactivebot-primary", _301InteractiveBot.primaryColor || "#0b1f3a");
-      $w.css("--301interactivebot-accent", _301InteractiveBot.accentColor || "#2563eb");
-      $w.css("--301interactivebot-bubble", _301InteractiveBot.bubbleColor || "#2563eb");
-      $w.css("--301interactivebot-text", _301InteractiveBot.textColor || "#0b1f3a");
+      $w.css("--_301interactivebot-primary", _301InteractiveBot.primaryColor || "#0b1f3a");
+      $w.css("--_301interactivebot-accent", _301InteractiveBot.accentColor || "#2563eb");
+      $w.css("--_301interactivebot-bubble", _301InteractiveBot.bubbleColor || "#2563eb");
+      $w.css("--_301interactivebot-text", _301InteractiveBot.textColor || "#0b1f3a");
 
       if(_301InteractiveBot.logoUrl){
-        $w.find(".301interactivebot-logo").attr("src", _301InteractiveBot.logoUrl).show();
+        $w.find("._301interactivebot-logo").attr("src", _301InteractiveBot.logoUrl).show();
       }
       if((_301InteractiveBot.closedIcon || "chat") === "none"){
-        $w.find(".301interactivebot-bubble").hide();
+        $w.find("._301interactivebot-bubble").hide();
       } else {
-        $w.find(".301interactivebot-bubble").show();
+        $w.find("._301interactivebot-bubble").show();
       }
     }catch(e){}
 
@@ -186,23 +186,21 @@
     applyWidgetPosition();
     window.addEventListener('resize', function(){ applyWidgetPosition(); }, {passive:true});
 
-    const $box   = $w.find(".301interactivebot-messages");
-    const $input = $w.find(".301interactivebot-input");
-    const $send  = $w.find(".301interactivebot-send");
-    const $thinking = $w.find(".301interactivebot-thinking");
-    const $bubble = $w.find(".301interactivebot-bubble");
-    const $toggle = $w.find(".301interactivebot-toggle");
-    const $window = $w.find(".301interactivebot-window");
-    const $inputRow = $w.find(".301interactivebot-input-row");
-    const $lead = $w.find(".301interactivebot-lead");
-    const $leadFirst = $w.find(".301interactivebot-lead-first");
-    const $leadLast = $w.find(".301interactivebot-lead-last");
-    const $leadPhone = $w.find(".301interactivebot-lead-phone");
-    const $leadEmail = $w.find(".301interactivebot-lead-email");
-    const $leadStateSelect = $w.find(".301interactivebot-lead-state-select");
-    const $leadCountyInput = $w.find(".301interactivebot-lead-county-input");
-    const $leadCountyOptions = $w.find(".301interactivebot-lead-county-options");
-    const $leadSubmit = $w.find(".301interactivebot-lead-submit");
+    const $box   = $w.find("._301interactivebot-messages");
+    const $input = $w.find("._301interactivebot-input");
+    const $send  = $w.find("._301interactivebot-send");
+    const $thinking = $w.find("._301interactivebot-thinking");
+    const $bubble = $w.find("._301interactivebot-bubble");
+    const $toggle = $w.find("._301interactivebot-toggle");
+    const $window = $w.find("._301interactivebot-window");
+    const $inputRow = $w.find("._301interactivebot-input-row");
+    const $lead = $w.find("._301interactivebot-lead");
+    const $leadFirst = $w.find("._301interactivebot-lead-first");
+    const $leadLast = $w.find("._301interactivebot-lead-last");
+    const $leadPhone = $w.find("._301interactivebot-lead-phone");
+    const $leadEmail = $w.find("._301interactivebot-lead-email");
+    const $leadAddress = $w.find("._301interactivebot-lead-address");
+    const $leadSubmit = $w.find("._301interactivebot-lead-submit");
 
     let chat_id = null;
     let session_key = null;
@@ -216,16 +214,20 @@
     let leadFlow = null;
     let pendingLeadLinks = null;
     let leadCollected = false;
-    let pendingPricingRequest = false;
-    let priceListSharedForLead = false;
     const leadCaptureMode = (_301InteractiveBot.leadCaptureMode || "form").toString();
+    const requireEmail = !!_301InteractiveBot.requireEmail;
+    const requirePhone = !!_301InteractiveBot.requirePhone;
+    const requireAddress = !!_301InteractiveBot.requireAddress;
+    const escalationEnabled = !!_301InteractiveBot.escalationEnabled;
+    const escalationKeywords = Array.isArray(_301InteractiveBot.escalationKeywords) ? _301InteractiveBot.escalationKeywords.map(v=>(v||"").toString().trim().toLowerCase()).filter(Boolean) : [];
+    const leadPromptIntro = (_301InteractiveBot.leadPromptIntro || "To help with your request, please share your contact details.").toString();
 
     // pending lock (only defined once)
     let pending = false;
     function setPending(on, mode){
       pending = !!on;
       $thinking.toggleClass("is-visible", pending);
-      $thinking.find(".301interactivebot-thinking-text")
+      $thinking.find("._301interactivebot-thinking-text")
         .text(mode === "admin" ? "Admin is replying…" : "Thinking…");
       $input.prop("disabled", pending);
       $send.prop("disabled", pending);
@@ -249,68 +251,13 @@
       }
     };
 
-    const serviceAreaConfig = Array.isArray(_301InteractiveBot.serviceAreaConfig) ? _301InteractiveBot.serviceAreaConfig : [];
-    const stateCountyMap = {};
-    const countyStateMap = {};
-    const countyLabelLookup = {};
-
-    function normalizeCountyName(name){
-      return (name || "").toString().trim().replace(/\s+County$/i, "");
-    }
-
-    function formatCountyLabel(county, state){
-      const base = normalizeCountyName(county);
-      return state ? `${base}, ${state}` : base;
-    }
-
-    serviceAreaConfig.forEach(area=>{
-      const state = ((area && area.state) || "").toString().trim().toUpperCase();
-      if(!state) return;
-      const counties = Array.isArray(area && area.counties) ? area.counties : [];
-      if(!stateCountyMap[state]) stateCountyMap[state] = [];
-      counties.forEach(county=>{
-        const rawCounty = (county || "").toString().trim();
-        if(!rawCounty) return;
-        const normalizedCounty = normalizeCountyName(rawCounty);
-        const label = formatCountyLabel(rawCounty, state);
-        const row = { county: rawCounty, state, label, normalizedCounty };
-        stateCountyMap[state].push(row);
-        if(!countyStateMap[rawCounty]) countyStateMap[rawCounty] = state;
-        if(!countyStateMap[normalizedCounty]) countyStateMap[normalizedCounty] = state;
-        countyLabelLookup[label.toLowerCase()] = row;
-      });
-    });
-
-    Object.keys(stateCountyMap).forEach(st=>{
-      stateCountyMap[st].sort((a,b)=>a.label.localeCompare(b.label));
-    });
-
-    const stateOptions = Object.keys(stateCountyMap).sort();
-    stateOptions.forEach(st=>{
-      $leadStateSelect.append($('<option></option>').val(st).text(st));
-    });
-
-    let buildCounties = [];
-    Object.keys(stateCountyMap).forEach(st=>{
-      buildCounties = buildCounties.concat(stateCountyMap[st]);
-    });
-    buildCounties.sort((a,b)=>a.label.localeCompare(b.label));
-
-    if(!buildCounties.length){
-      buildCounties = (_301InteractiveBot.buildCounties || _301InteractiveBot.buildCities || [])
-        .map(c => ({ county: (c || "").toString().trim(), state: countyStateMap[(c || "").toString().trim()] || "", label: (c || "").toString().trim(), normalizedCounty: normalizeCountyName(c) }))
-        .filter(c => c.county)
-        .sort((a,b)=>a.label.localeCompare(b.label));
-    }
-
-    function getCountyCandidates(){
-      const selectedState = ($leadStateSelect.val() || "").trim().toUpperCase();
-      if(selectedState && stateCountyMap[selectedState]) return stateCountyMap[selectedState];
-      return buildCounties;
-    }
+    // Service-area and county/state mapping logic intentionally disabled for generic deployments.
 
     function detectPricingIntent(text){
-      return /(price|pricing|cost|how much|quote|estimate)/i.test((text || "").toString());
+      const msg = (text || "").toString().toLowerCase();
+      if(/\b(price|pricing|cost|how much|quote|estimate)\b/i.test(msg)) return true;
+      if(!escalationEnabled || !escalationKeywords.length) return false;
+      return escalationKeywords.some(keyword => keyword && msg.includes(keyword));
     }
 
     function shouldOpenLeadFromReply(replyText){
@@ -319,184 +266,29 @@
       const asksLead = (
         /first\s*name/.test(txt) &&
         /last\s*name/.test(txt) &&
-        /email/.test(txt) &&
-        (/county/.test(txt) || /state/.test(txt))
+        /address/.test(txt)
       );
       const explicitLeadPrompt = /please provide|share your|to get your info|get your info|lead info/.test(txt);
       return asksLead || explicitLeadPrompt;
     }
 
-    function findServiceAreaForLead(county, state){
-      const list = Array.isArray(_301InteractiveBot.serviceAreaConfig) ? _301InteractiveBot.serviceAreaConfig : [];
-      const normalizedCounty = normalizeCountyName(county).toLowerCase();
-      const upperState = (state || "").toString().trim().toUpperCase();
-      let fallback = null;
-      for(const area of list){
-        const areaState = ((area && area.state) || "").toString().trim().toUpperCase();
-        const counties = Array.isArray(area && area.counties) ? area.counties : [];
-        const hasCounty = counties.some(c=>normalizeCountyName(c).toLowerCase() === normalizedCounty);
-        if(!hasCounty) continue;
-        if(upperState && areaState === upperState) return area;
-        if(!fallback) fallback = area;
-      }
-      return fallback;
-    }
-
-    function maybeSharePriceList(payload){
-      if(!pendingPricingRequest || priceListSharedForLead) return;
-      const area = findServiceAreaForLead(payload.build_county, payload.build_state);
-      if(!area) return;
-      const link = ((area['price-list-link'] || '') + '').trim();
-      const name = ((area['price-list-name'] || '') + '').trim() || 'Price List';
-      if(!link) return;
-      const msg = `Here is your ${name}: ${link}`;
-      addMsg($box, "bot", msg);
-      seen.add("bot", msg);
-      priceListSharedForLead = true;
-      pendingPricingRequest = false;
-    }
-
-    function renderCountyOptions(filterValue){
-      const filter = (filterValue || "").toLowerCase();
-      const matches = getCountyCandidates().filter(item => {
-        return !filter || item.label.toLowerCase().includes(filter) || item.county.toLowerCase().includes(filter);
-      });
-      $leadCountyOptions.empty();
-      if(matches.length === 0){
-        $leadCountyOptions.append('<div class="301interactivebot-lead-county-option">No matches</div>');
-        return;
-      }
-      matches.forEach((item, idx)=>{
-        const $opt = $('<div class="301interactivebot-lead-county-option" role="option"></div>');
-        $opt.text(item.label);
-        $opt.attr('data-county', item.county);
-        $opt.attr('data-state', item.state);
-        if(idx === 0) $opt.addClass("is-active");
-        $leadCountyOptions.append($opt);
-      });
-    }
-
-    function openCountyOptions(){
-      if(!$leadCountyOptions.length) return;
-      renderCountyOptions($leadCountyInput.val());
-      $leadCountyOptions.addClass("is-open");
-    }
-
-    function closeCountyOptions(){
-      $leadCountyOptions.removeClass("is-open");
-    }
-
-    function applyCountyOption($option){
-      const county = ($option.attr('data-county') || '').trim();
-      const state = ($option.attr('data-state') || '').trim().toUpperCase();
-      const label = county ? formatCountyLabel(county, state) : ($option.text() || '').trim();
-      if(label) $leadCountyInput.val(label);
-      if(state) $leadStateSelect.val(state);
-    }
-
-    $leadStateSelect.on('change', ()=>{
-      $leadCountyInput.val('');
-      renderCountyOptions('');
-      scheduleLeadSave();
-    });
-
-    $leadCountyInput.on("focus input", ()=>{
-      openCountyOptions();
-      scheduleLeadSave();
-    });
-
-    $leadCountyInput.on("keydown", (e)=>{
-      if(!$leadCountyOptions.hasClass("is-open")) return;
-      const $items = $leadCountyOptions.find(".301interactivebot-lead-county-option");
-      let $active = $items.filter(".is-active").first();
-      if(e.key === "ArrowDown"){
-        e.preventDefault();
-        const $next = $active.length ? $active.next() : $items.first();
-        $active.removeClass("is-active");
-        $next.addClass("is-active");
-        return;
-      }
-      if(e.key === "ArrowUp"){
-        e.preventDefault();
-        const $prev = $active.length ? $active.prev() : $items.last();
-        $active.removeClass("is-active");
-        $prev.addClass("is-active");
-        return;
-      }
-      if(e.key === "Enter"){
-        e.preventDefault();
-        if($active.length && $active.text() !== "No matches"){
-          applyCountyOption($active);
-        }
-        closeCountyOptions();
-        scheduleLeadSave();
-      }
-    });
-
-    $leadCountyOptions.on("click", ".301interactivebot-lead-county-option", function(){
-      const $opt = $(this);
-      if($opt.text() !== "No matches"){
-        applyCountyOption($opt);
-      }
-      closeCountyOptions();
-      scheduleLeadSave();
-    });
-
-    $(document).on("click", (e)=>{
-      if(!$(e.target).closest(".301interactivebot-lead-county-select").length){
-        closeCountyOptions();
-      }
-    });
-
-    function deriveStateFromCounty(county){
-      const selectedState = ($leadStateSelect.val() || "").trim().toUpperCase();
-      if(selectedState) return selectedState;
-      const trimmed = (county || "").trim();
-      if(!trimmed) return "";
-      const lookup = countyLabelLookup[trimmed.toLowerCase()];
-      if(lookup && lookup.state) return lookup.state;
-      const noStateSuffix = trimmed.replace(/,\s*[A-Za-z]{2}$/,'').trim();
-      if(countyStateMap[trimmed]) return countyStateMap[trimmed];
-      if(countyStateMap[noStateSuffix]) return countyStateMap[noStateSuffix];
-      const match = trimmed.match(/,\s*([A-Za-z]{2})$/);
-      if(!match) return "";
-      return match[1].toUpperCase();
-    }
-
-    function resolveCountyFromInput(inputCounty, state){
-      const trimmed = (inputCounty || '').trim();
-      if(!trimmed) return '';
-      const byLabel = countyLabelLookup[trimmed.toLowerCase()];
-      if(byLabel && (!state || byLabel.state === state)) return byLabel.county;
-
-      const base = normalizeCountyName(trimmed.replace(/,\s*[A-Za-z]{2}$/,''));
-      const candidates = state && stateCountyMap[state] ? stateCountyMap[state] : buildCounties;
-      const found = candidates.find(item => item.normalizedCounty.toLowerCase() === base.toLowerCase() || item.county.toLowerCase() === trimmed.toLowerCase());
-      return found ? found.county : base;
-    }
+    // Service-area price list sharing intentionally disabled for generic deployments.
 
     function getLeadPayload(){
-      const countyInput = ($leadCountyInput.val() || "").trim();
-      const state = deriveStateFromCounty(countyInput);
       return {
         first_name: ($leadFirst.val() || "").trim(),
         last_name: ($leadLast.val() || "").trim(),
         phone: ($leadPhone.val() || "").trim(),
         email: ($leadEmail.val() || "").trim(),
-        build_county: resolveCountyFromInput(countyInput, state),
-        build_state: state
+        address: ($leadAddress.val() || "").trim()
       };
     }
 
-    function isCountyValid(county, state){
-      const resolvedCounty = resolveCountyFromInput(county, state);
-      if(!resolvedCounty) return false;
-      const scoped = state && stateCountyMap[state] ? stateCountyMap[state] : buildCounties;
-      return scoped.some(item => item.county.toLowerCase() === resolvedCounty.toLowerCase());
-    }
-
     function isLeadComplete(payload){
-      return payload.first_name && payload.last_name && payload.email && payload.build_state && payload.build_county && isCountyValid(payload.build_county, payload.build_state);
+      const hasAddress = !requireAddress || !!payload.address;
+      const hasEmail = !requireEmail || !!payload.email;
+      const hasPhone = !requirePhone || !!payload.phone;
+      return payload.first_name && payload.last_name && hasAddress && hasEmail && hasPhone;
     }
 
     function shouldCollectLeadNow(){
@@ -637,22 +429,22 @@
 
     function showIdleWarning(){
       if(!chat_id) return;
-      if($(".301interactivebot-idle-modal").length) return;
+      if($("._301interactivebot-idle-modal").length) return;
       let remaining = 30;
       const $modal = $(
-        '<div class="301interactivebot-idle-modal">'+
-          '<div class="301interactivebot-idle-card">'+
-            '<div class="301interactivebot-idle-title">Still there?</div>'+
-            '<div class="301interactivebot-idle-text">Your chat will end in 30 seconds.</div>'+
-            '<div class="301interactivebot-idle-actions">'+
-              '<button type="button" class="301interactivebot-idle-keep">Keep Open</button>'+
-              '<button type="button" class="301interactivebot-idle-end">End Now</button>'+
+        '<div class="_301interactivebot-idle-modal">'+
+          '<div class="_301interactivebot-idle-card">'+
+            '<div class="_301interactivebot-idle-title">Still there?</div>'+
+            '<div class="_301interactivebot-idle-text">Your chat will end in 30 seconds.</div>'+
+            '<div class="_301interactivebot-idle-actions">'+
+              '<button type="button" class="_301interactivebot-idle-keep">Keep Open</button>'+
+              '<button type="button" class="_301interactivebot-idle-end">End Now</button>'+
             '</div>'+
           '</div>'+
         '</div>'
       );
       $("body").append($modal);
-      const $text = $modal.find(".301interactivebot-idle-text");
+      const $text = $modal.find("._301interactivebot-idle-text");
       $text.text(`Your chat will end in ${remaining} seconds.`);
       const tick = setInterval(()=>{
         remaining -= 1;
@@ -665,12 +457,12 @@
         $text.text(`Your chat will end in ${remaining} seconds.`);
       }, 1000);
       const clearTick = ()=>{ clearInterval(tick); };
-      $modal.find(".301interactivebot-idle-keep").on("click", ()=>{
+      $modal.find("._301interactivebot-idle-keep").on("click", ()=>{
         clearTick();
         $modal.remove();
         resetIdle();
       });
-      $modal.find(".301interactivebot-idle-end").on("click", ()=>{
+      $modal.find("._301interactivebot-idle-end").on("click", ()=>{
         clearTick();
         $modal.remove();
         endIdle("idle_end_now");
@@ -688,12 +480,10 @@
       $leadLast.val("");
       $leadPhone.val("");
       $leadEmail.val("");
-      $leadCountyInput.val("");
+      $leadAddress.val("");
       leadSavedPayload = null;
       leadFlow = null;
       pendingLeadLinks = null;
-      pendingPricingRequest = false;
-      priceListSharedForLead = false;
       if(leadSaveTimer){
         clearTimeout(leadSaveTimer);
         leadSaveTimer = null;
@@ -725,7 +515,7 @@
     function endIdle(reason){
       if(!chat_id) return;
       clearIdle();
-      $(".301interactivebot-idle-modal").remove();
+      $("._301interactivebot-idle-modal").remove();
       // end server-side
       rest("/end","POST",{chat_id}).catch(()=>{});
       fireGA("301interactivebot_chat_end", {chat_id: chat_id, reason: "idle"});
@@ -796,29 +586,26 @@
       }
       $lead.toggle(!!show);
       $inputRow.toggle(!show);
-      if(!show){
-        closeCountyOptions();
-      }
     }
 
-    [$leadFirst, $leadLast, $leadPhone, $leadEmail].forEach($field=>{
+    [$leadFirst, $leadLast, $leadPhone, $leadEmail, $leadAddress].forEach($field=>{
       $field.on("input blur", scheduleLeadSave);
     });
     $leadSubmit.on("click", ()=>{
       const payload = getLeadPayload();
-      if(!payload.first_name || !payload.last_name || !payload.email || !payload.build_state || !payload.build_county){
-        setStatus($w, "First Name, Last Name, Email, State, and County are required.");
-        return;
-      }
-      if(!isCountyValid(payload.build_county, payload.build_state)){
-        setStatus($w, "Please choose a county from the list.");
-        openCountyOptions();
+      const missing = [];
+      if(!payload.first_name) missing.push("First Name");
+      if(!payload.last_name) missing.push("Last Name");
+      if(requireAddress && !payload.address) missing.push("Address");
+      if(requireEmail && !payload.email) missing.push("Email");
+      if(requirePhone && !payload.phone) missing.push("Phone");
+      if(missing.length){
+        setStatus($w, `${missing.join(", ")} ${missing.length === 1 ? "is" : "are"} required.`);
         return;
       }
       setStatus($w, "");
-      const state = payload.build_state ? ` ${payload.build_state}` : "";
       const emailText = payload.email ? `Email: ${payload.email}` : "Email: (not provided)";
-      const summary = `Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone}, ${emailText}, County: ${payload.build_county}${state}.`;
+      const summary = `Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone || "(not provided)"}, ${emailText}, Address: ${payload.address}.`;
       addMsg($box, "user", summary);
       seen.add("user", summary);
       fireGA("301interactivebot_chat_lead_form", {chat_id: chat_id || undefined});
@@ -833,8 +620,10 @@
       if(leadCaptureMode !== "chat") return;
       if(leadFlow && leadFlow.active) return;
       leadFlow = {active: true, step: "first_name", data: {}};
-      addMsg($box, "bot", "To help with pricing, please share your first name.");
-      seen.add("bot", "To help with pricing, please share your first name.");
+      addMsg($box, "bot", leadPromptIntro);
+      seen.add("bot", leadPromptIntro);
+      addMsg($box, "bot", "What’s your first name?");
+      seen.add("bot", "What’s your first name?");
     }
 
     function handleLeadChatInput(message){
@@ -850,50 +639,64 @@
           return true;
         case "last_name":
           leadFlow.data.last_name = msg;
+          leadFlow.step = "phone";
+          addMsg($box, "bot", "What’s your phone number? (optional, type skip to continue)");
+          seen.add("bot", "What’s your phone number? (optional, type skip to continue)");
+          return true;
+        case "phone":
+          if(requirePhone && msg.toLowerCase() === "skip"){
+            addMsg($box, "bot", "Phone is required for this request. What’s your phone number?");
+            seen.add("bot", "Phone is required for this request. What’s your phone number?");
+            return true;
+          }
+          leadFlow.data.phone = (msg.toLowerCase() === "skip") ? "" : msg;
           leadFlow.step = "email";
-          addMsg($box, "bot", "What’s your email?");
-          seen.add("bot", "What’s your email?");
+          if(requireEmail){
+            addMsg($box, "bot", "What’s your email?");
+            seen.add("bot", "What’s your email?");
+          } else {
+            addMsg($box, "bot", "What’s your email? (optional, type skip to continue)");
+            seen.add("bot", "What’s your email? (optional, type skip to continue)");
+          }
           return true;
         case "email":
-          if(!msg || msg.toLowerCase() === "skip"){
-            addMsg($box, "bot", "Email is required to provide pricing details. What’s your email?");
-            seen.add("bot", "Email is required to provide pricing details. What’s your email?");
+          if(requireEmail && msg.toLowerCase() === "skip"){
+            addMsg($box, "bot", "Email is required for this request. What’s your email?");
+            seen.add("bot", "Email is required for this request. What’s your email?");
             return true;
           }
-          leadFlow.data.email = msg;
-          leadFlow.data.phone = "";
-          leadFlow.step = "county";
-          addMsg($box, "bot", "Which build county are you interested in? (include state abbreviation)");
-          seen.add("bot", "Which build county are you interested in? (include state abbreviation)");
+          leadFlow.data.email = (msg.toLowerCase() === "skip") ? "" : msg;
+          if(requireAddress){
+            leadFlow.step = "address";
+            addMsg($box, "bot", "What address are you building at or interested in?");
+            seen.add("bot", "What address are you building at or interested in?");
+          } else {
+            leadFlow.step = "done";
+          }
           return true;
-        case "county":
-          leadFlow.data.build_state = deriveStateFromCounty(msg);
-          if(!leadFlow.data.build_state){
-            addMsg($box, "bot", "Please include the state abbreviation with the county (for example: Bullitt, KY).");
-            seen.add("bot", "Please include the state abbreviation with the county (for example: Bullitt, KY).");
+        case "address":
+          leadFlow.data.address = msg;
+          if(requireAddress && !leadFlow.data.address){
+            addMsg($box, "bot", "Please provide an address so we can follow up.");
+            seen.add("bot", "Please provide an address so we can follow up.");
             return true;
           }
-          leadFlow.data.build_county = resolveCountyFromInput(msg, leadFlow.data.build_state);
-          if(!isCountyValid(leadFlow.data.build_county, leadFlow.data.build_state)){
-            addMsg($box, "bot", "Please choose a valid county from the list in format CountyName, ST (for example: Bullitt, KY).");
-            seen.add("bot", "Please choose a valid county from the list in format CountyName, ST (for example: Bullitt, KY).");
-            return true;
-          }
+          leadFlow.step = "done";
+          // fall through
+        case "done":
           leadFlow.active = false;
           const payload = {
             first_name: leadFlow.data.first_name || "",
             last_name: leadFlow.data.last_name || "",
             phone: leadFlow.data.phone || "",
             email: leadFlow.data.email || "",
-            build_county: leadFlow.data.build_county || "",
-            build_state: leadFlow.data.build_state || ""
+            address: leadFlow.data.address || ""
           };
           saveLeadIfReady(true, payload);
           leadCollected = true;
-          //maybeSharePriceList(payload);
           addMsg($box, "bot", "Thanks! We’ve passed your info to a New Home Consultant.");
           seen.add("bot", "Thanks! We’ve passed your info to a New Home Consultant.");
-          requestPostLeadResponse(`Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone}, Email: ${payload.email || "(not provided)"}, County: ${payload.build_county}${payload.build_state ? " " + payload.build_state : ""}.`);
+          requestPostLeadResponse(`Customer info submitted: ${payload.first_name} ${payload.last_name}, Phone: ${payload.phone || "(not provided)"}, Email: ${payload.email || "(not provided)"}, Address: ${payload.address || "(not provided)"}.`);
           leadFlow = null;
           return true;
         default:
@@ -961,7 +764,7 @@
       seen.add("user", msg);
       setPending(true, "ai");
       activity();
-      if(detectPricingIntent(msg)) pendingPricingRequest = true;
+      const shouldEscalateNow = detectPricingIntent(msg);
 
       if(handleLeadChatInput(msg)){
         setPending(false);
@@ -1000,11 +803,12 @@
         if(resp && resp.user_message_id){
           pollState.sinceId = Math.max(pollState.sinceId, parseInt(resp.user_message_id, 10) || 0);
         }
-        if(resp && resp.should_collect_lead && shouldCollectLeadNow()){
-          pendingPricingRequest = true;
+        if(resp && (resp.should_collect_lead || shouldEscalateNow) && shouldCollectLeadNow()){
           if(leadCaptureMode === "chat"){
             startLeadChatFlow();
           } else {
+            addMsg($box, "bot", leadPromptIntro);
+            seen.add("bot", leadPromptIntro);
             toggleLeadForm(true);
           }
           if(resp && resp.suggested_links && resp.suggested_links.length){
@@ -1031,10 +835,10 @@
     $input.on("keydown", (e)=>{ if(e.key === "Enter"){ e.preventDefault(); send(); } });
 
     // End chat button (if present)
-    $w.find(".301interactivebot-endchat").on("click", ()=>{
+    $w.find("._301interactivebot-endchat").on("click", ()=>{
       if(!chat_id) return;
       clearIdle();
-      $(".301interactivebot-idle-modal").remove();
+      $("._301interactivebot-idle-modal").remove();
       rest("/end","POST",{chat_id}).catch(()=>{});
       rest("/event","POST",{chat_id:chat_id, event_type:"chat_end", event_value:"manual", url: window.location.href}).catch(()=>{});
       fireGA("301interactivebot_chat_end", {chat_id: chat_id, reason: "manual"});
@@ -1048,7 +852,7 @@
 
   $(function(){
     // Initialize all widgets rendered on page
-    $(".301interactivebot-widget").each(function(){
+    $("._301interactivebot-widget").each(function(){
       initWidget($(this));
     });
   });

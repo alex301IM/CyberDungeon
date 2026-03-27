@@ -67,23 +67,32 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
         return '';
     }
 
-    $companyName = "301 Interactive";
+    $companyName = !empty($settings['company_name']) ? $settings['company_name'] : '301 Interactive';
 
     $atts = shortcode_atts([
         'title' => $companyName.' Assistant',
-        'welcome' => "Hi! I can help answer questions about '.$companyName.' and point you to the right page. What can I help with?"
+        'welcome' => sprintf(
+            'Hi! I can help answer questions about %s and point you to the right page. What can I help with?',
+            $companyName
+        ),
     ], $atts);
 
-    wp_enqueue_style('301interactivebot-chat', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/chatbot.css', [], _301INTERACTIVEBOT_VERSION);
-    wp_enqueue_script('301interactivebot-chat', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/chatbot.js', ['jquery'], _301INTERACTIVEBOT_VERSION, true);
+    wp_enqueue_style('_301interactivebot-chat', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/chatbot.css', [], _301INTERACTIVEBOT_VERSION);
+    wp_enqueue_script('_301interactivebot-chat', _301INTERACTIVEBOT_PLUGIN_URL . 'assets/chatbot.js', ['jquery'], _301INTERACTIVEBOT_VERSION, true);
 
-    wp_localize_script('301interactivebot-chat', '_301InteractiveBot', [
+    wp_localize_script('_301interactivebot-chat', '_301InteractiveBot', [
         'restBase' => esc_url_raw(rest_url('301interactivebot/v1')),
         'nonce' => wp_create_nonce('wp_rest'),
         'welcome' => $atts['welcome'],
         'idleTimeoutSeconds' => (int)($settings['idle_timeout_seconds'] ?? 300),
         'leadCaptureMode' => $settings['lead_capture_mode'] ?? 'form',
         'showRecommendedLinks' => !empty($settings['show_recommended_links']),
+        'requireEmail' => !empty($settings['require_email']),
+        'requirePhone' => !empty($settings['require_phone']),
+        'requireAddress' => !empty($settings['require_address']),
+        'escalationEnabled' => !empty($settings['escalation_enabled']),
+        'escalationKeywords' => preg_split('/[\r\n,;]+/', (string)($settings['escalation_keywords_raw'] ?? ''), -1, PREG_SPLIT_NO_EMPTY),
+        'leadPromptIntro' => $settings['lead_prompt_intro'] ?? 'To help with your request, please share your contact details.',
 
         // Widget settings
         'widgetMode' => $settings['show_mode'] ?? 'floating',
@@ -109,7 +118,7 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
     ]);
 
     $style = sprintf(
-        '--301interactivebot-primary:%s;--301interactivebot-accent:%s;--301interactivebot-bubble:%s;--301interactivebot-text:%s;',
+        '--_301interactivebot-primary:%s;--_301interactivebot-accent:%s;--_301interactivebot-bubble:%s;--_301interactivebot-text:%s;',
         esc_attr($settings['primary_color'] ?? '#0b1f3a'),
         esc_attr($settings['accent_color'] ?? '#2563eb'),
         esc_attr($settings['bubble_color'] ?? '#2563eb'),
@@ -117,55 +126,49 @@ add_shortcode('301interactive_chatbot', function($atts = []) {
     );
 
     ob_start(); ?>
-    <div class="301interactivebot-widget" data-title="<?php echo esc_attr($atts['title']); ?>" style="<?php echo $style; ?>">
-      <button class="301interactivebot-bubble" type="button" aria-label="Open chat">
-        <span class="301interactivebot-bubble-icon">💬</span>
+    <div class="_301interactivebot-widget" data-title="<?php echo esc_attr($atts['title']); ?>" style="<?php echo $style; ?>">
+      <button class="_301interactivebot-bubble" type="button" aria-label="Open chat">
+        <span class="_301interactivebot-bubble-icon">💬</span>
       </button>
 
-      <div class="301interactivebot-window" aria-hidden="true">
-        <div class="301interactivebot-header">
-          <div class="301interactivebot-title-wrap">
-            <img class="301interactivebot-logo" alt="" style="display:none"/>
-            <div class="301interactivebot-title"><?php echo esc_html($atts['title']); ?></div>
+      <div class="_301interactivebot-window" aria-hidden="true">
+        <div class="_301interactivebot-header">
+          <div class="_301interactivebot-title-wrap">
+            <img class="_301interactivebot-logo" alt="" style="display:none"/>
+            <div class="_301interactivebot-title"><?php echo esc_html($atts['title']); ?></div>
           </div>
-          <button class="301interactivebot-toggle" type="button" aria-label="Minimize">—</button>
+          <button class="_301interactivebot-toggle" type="button" aria-label="Minimize">—</button>
         </div>
 
-        <div class="301interactivebot-body">
-          <div class="301interactivebot-messages"></div>
+        <div class="_301interactivebot-body">
+          <div class="_301interactivebot-messages"></div>
 
-          <div class="301interactivebot-thinking" aria-live="polite">
-            <span class="301interactivebot-spinner" aria-hidden="true"></span>
-            <span class="301interactivebot-thinking-text">Thinking…</span>
+          <div class="_301interactivebot-thinking" aria-live="polite">
+            <span class="_301interactivebot-spinner" aria-hidden="true"></span>
+            <span class="_301interactivebot-thinking-text">Thinking…</span>
           </div>
 
-          <div class="301interactivebot-status"></div>
+          <div class="_301interactivebot-status"></div>
 
-          <div class="301interactivebot-input-row">
-            <input class="301interactivebot-input" type="text" placeholder="Type your message..." />
-            <button class="301interactivebot-send" type="button">Send</button>
+          <div class="_301interactivebot-input-row">
+            <input class="_301interactivebot-input" type="text" placeholder="Type your message..." />
+            <button class="_301interactivebot-send" type="button">Send</button>
           </div>
 
-          <div class="301interactivebot-lead" style="display:none">
-            <div class="301interactivebot-lead-title">Get more information</div>
-            <div class="301interactivebot-lead-grid">
-              <input class="301interactivebot-lead-first" type="text" placeholder="First Name" />
-              <input class="301interactivebot-lead-last" type="text" placeholder="Last Name" />
-              <input class="301interactivebot-lead-phone" type="tel" placeholder="Phone (optional)" />
-              <input class="301interactivebot-lead-email" type="email" placeholder="Email" />
-              <select class="301interactivebot-lead-state-select">
-                <option value="">Select Build State</option>
-              </select>
-              <div class="301interactivebot-lead-county-select">
-                <input class="301interactivebot-lead-county-input" type="text" placeholder="Build County (e.g. Bullitt, KY)" autocomplete="off" />
-                <div class="301interactivebot-lead-county-options" role="listbox" aria-label="Build county options"></div>
-              </div>
+          <div class="_301interactivebot-lead" style="display:none">
+            <div class="_301interactivebot-lead-title">Get more information</div>
+            <div class="_301interactivebot-lead-grid">
+              <input class="_301interactivebot-lead-first" type="text" placeholder="First Name" />
+              <input class="_301interactivebot-lead-last" type="text" placeholder="Last Name" />
+              <input class="_301interactivebot-lead-phone" type="tel" placeholder="Phone (optional)" />
+              <input class="_301interactivebot-lead-email" type="email" placeholder="Email (optional)" />
+              <input class="_301interactivebot-lead-address" type="text" placeholder="Address" />
             </div>
-            <button class="301interactivebot-lead-submit" type="button">Submit</button>
+            <button class="_301interactivebot-lead-submit" type="button">Submit</button>
           </div>
 
-          <div class="301interactivebot-end-row">
-            <button class="301interactivebot-endchat" type="button">End chat</button>
+          <div class="_301interactivebot-end-row">
+            <button class="_301interactivebot-endchat" type="button">End chat</button>
           </div>
         </div>
       </div>
